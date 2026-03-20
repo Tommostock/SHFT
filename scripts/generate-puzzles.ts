@@ -60,6 +60,14 @@ const THEMATIC_PAIRS: Record<number, [string, string][]> = {
   ],
 };
 
+/** Check if two words share any letters in the same position */
+function hasMatchingPositions(a: string, b: string): boolean {
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] === b[i]) return true;
+  }
+  return false;
+}
+
 /** BFS to find shortest path, optionally restricted to common words only */
 function bfs(
   start: string,
@@ -154,6 +162,8 @@ function main() {
       const pairKey = `${start}-${target}`;
       if (usedPairs.has(pairKey)) continue;
       if (!common.has(start) || !common.has(target)) continue;
+      // Start and target must share no letters in the same position
+      if (hasMatchingPositions(start, target)) continue;
 
       // BFS through common words only — ensures all-common path
       const path = bfs(start, target, graph, common);
@@ -178,12 +188,13 @@ function main() {
     if (!foundPuzzle) {
       const commonArr = [...common];
 
-      for (let attempt = 0; attempt < 300; attempt++) {
+      for (let attempt = 0; attempt < 500; attempt++) {
         const startWord = commonArr[Math.floor(Math.random() * commonArr.length)];
 
         // BFS from start, restricted to common words, find targets at distance 3-6
+        // Target must share no letters in the same position as start
         const path = findGoodTarget(startWord, graph, common, wordLength);
-        if (path) {
+        if (path && !hasMatchingPositions(path[0], path[path.length - 1])) {
           const pairKey = `${path[0]}-${path[path.length - 1]}`;
           if (!usedPairs.has(pairKey)) {
             usedPairs.add(pairKey);
@@ -254,7 +265,8 @@ function findGoodTarget(
         visited.set(neighbour, newPath);
         queue.push([neighbour, newPath]);
 
-        if (newPath.length >= 4 && newPath.length <= 7) {
+        // Only consider targets with no matching positions to the start word
+        if (newPath.length >= 4 && newPath.length <= 7 && !hasMatchingPositions(startWord, neighbour)) {
           candidates.push(newPath);
         }
       }
