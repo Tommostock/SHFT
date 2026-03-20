@@ -116,7 +116,14 @@ export function ChainBoard() {
         </div>
       )}
 
-      {/* Gap dots — showing distance to fill */}
+      {/* Chain connector between target and chain when complete */}
+      {isComplete && (
+        <div className="flex justify-center py-0.5 shrink-0">
+          <span className="text-accent-gold text-xs">⛓️</span>
+        </div>
+      )}
+
+      {/* Gap dots — showing distance to fill (only when playing) */}
       {showActiveRung && (
         <div className="flex justify-center py-1 shrink-0">
           <div className="flex flex-col items-center gap-1">
@@ -127,13 +134,10 @@ export function ChainBoard() {
         </div>
       )}
 
-      {/* Spacer — pushes chain content to bottom of the area */}
-      <div className="flex-1 min-h-0" />
-
-      {/* Scrollable chain area — grows upward from bottom */}
+      {/* Chain area — grows upward from bottom toward the target */}
       <div
         ref={scrollRef}
-        className="flex flex-col shrink-0 max-h-[50vh] overflow-y-auto"
+        className="flex-1 flex flex-col justify-end overflow-y-auto"
       >
         {/* Active rung — current input */}
         {showActiveRung && (
@@ -160,9 +164,6 @@ export function ChainBoard() {
           const prevWord = idx > 0 ? chain[idx - 1] : undefined;
           const isLatestLock = idx === chain.length - 1 && idx > 0;
 
-          // Show chain connector between locked rungs only.
-          // The connector between active rung and the latest locked word
-          // appears only after the first word is locked in (chain > 1).
           const showConnector =
             reverseIdx > 0 || (reverseIdx === 0 && showActiveRung && chain.length > 1);
 
