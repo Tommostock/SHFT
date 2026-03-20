@@ -1,6 +1,7 @@
 /**
  * GameKeyboard — Custom QWERTY keyboard for the SHFT game.
- * Layout matches standard iPhone keyboard with UNDO/REDO flanking the bottom row.
+ * Layout matches standard iPhone keyboard: all letter keys are the same
+ * fixed width, with UNDO/REDO as wider buttons flanking the bottom row.
  */
 
 "use client";
@@ -53,12 +54,12 @@ export function GameKeyboard() {
 
   return (
     <div
-      className="px-1.5 pb-3 pt-1.5"
+      className="px-1 pb-3 pt-1.5"
       role="group"
       aria-label="Game keyboard"
     >
       {ROWS.map((row, rowIdx) => (
-        <div key={rowIdx} className="flex justify-center gap-[4px] mb-[4px]">
+        <div key={rowIdx} className="flex justify-center gap-[5px] mb-[6px]">
           {row.map((key) => {
             const isUndo = key === "undo";
             const isRedo = key === "redo";
@@ -82,12 +83,13 @@ export function GameKeyboard() {
                       ? "Redo step"
                       : key.toUpperCase()
                 }
+                style={isSpecial ? undefined : { width: "calc((100% - 54px) / 10)" }}
                 className={`
-                  ${isSpecial ? "flex-[1.5] min-w-[40px]" : "flex-1 min-w-[28px]"}
-                  h-12
+                  ${isSpecial ? "w-[52px] shrink-0" : "max-w-[36px]"}
+                  h-[42px]
                   flex items-center justify-center
-                  rounded-[var(--radius-sm)]
-                  font-body ${isSpecial ? "text-[10px] tracking-wide" : "text-sm"} font-medium uppercase
+                  rounded-[5px]
+                  font-body ${isSpecial ? "text-[10px] tracking-wide" : "text-[15px]"} font-medium uppercase
                   select-none
                   transition-all duration-100
                   ${isPressed
