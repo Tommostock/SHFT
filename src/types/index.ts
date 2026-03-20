@@ -2,16 +2,16 @@
    SHFT — TypeScript Interfaces
    =========================== */
 
-/** A single daily puzzle definition */
+/** A single puzzle definition */
 export interface DailyPuzzle {
   id: number;
-  date: string; // ISO date string YYYY-MM-DD
+  date?: string; // Optional — continuous play puzzles don't use dates
   startWord: string;
   targetWord: string;
   wordLength: number;
   par: number;
   optimalPath: string[];
-  difficulty: "starter" | "standard" | "advanced" | "expert";
+  difficulty?: "starter" | "standard" | "advanced" | "expert";
 }
 
 /** The full daily puzzles JSON file structure */

@@ -19,6 +19,7 @@ interface ResultModalProps {
   streak: number;
   onClose: () => void;
   isPractice?: boolean;
+  nextButtonLabel?: string;
 }
 
 const QUALITY_LABELS = {
@@ -42,6 +43,7 @@ export function ResultModal({
   targetWord,
   streak,
   onClose,
+  nextButtonLabel,
   isPractice = false,
 }: ResultModalProps) {
   const shareText = generateShareText(
@@ -124,6 +126,17 @@ export function ResultModal({
           <div className="mb-4">
             <ShareButton shareText={shareText} />
           </div>
+        )}
+
+        {/* Next puzzle button for continuous play */}
+        {nextButtonLabel && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full py-3 px-6 mb-3 bg-bg-elevated text-text-primary font-body font-bold text-base rounded-[var(--radius-lg)] hover:bg-border transition-colors"
+          >
+            {nextButtonLabel}
+          </button>
         )}
 
         {/* Streak */}

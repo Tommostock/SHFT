@@ -1,13 +1,10 @@
 /**
- * Puzzle Generator
+ * Puzzle Generator — 5-letter words only
  *
- * Generates 90 days of daily puzzles using BFS on the word graph.
- * CRITICAL: All words on the optimal path must be "common" — no obscure words.
- *
- * Weekly difficulty rotation:
- *   Mon-Thu: 4-letter (standard)
- *   Fri-Sat: 5-letter (advanced)
- *   Sunday:  3-letter (starter)
+ * Generates 500 puzzles for continuous play.
+ * Minimum par: 6 (harder puzzles).
+ * All words on optimal path must be common.
+ * Start and target must share no letters in the same position.
  *
  * Usage: npm run generate:puzzles
  */
@@ -16,49 +13,19 @@ import { readFileSync, writeFileSync, existsSync } from "fs";
 import { join } from "path";
 
 const DATA_DIR = join(process.cwd(), "public", "data");
+const WORD_LENGTH = 5;
+const MIN_PAR = 6;
+const MAX_PAR = 10;
+const PUZZLE_COUNT = 500;
 
 interface PuzzleEntry {
   id: number;
-  date: string;
   startWord: string;
   targetWord: string;
   wordLength: number;
   par: number;
   optimalPath: string[];
-  difficulty: string;
 }
-
-// Thematic word pairs — all must be common words
-const THEMATIC_PAIRS: Record<number, [string, string][]> = {
-  3: [
-    ["cat", "dog"], ["hot", "wet"], ["cup", "mug"], ["hen", "fox"],
-    ["old", "new"], ["sad", "mad"], ["boy", "man"], ["bay", "sea"],
-    ["cow", "pig"], ["fan", "air"], ["big", "fat"], ["day", "dim"],
-    ["dew", "fog"], ["bad", "sad"], ["sun", "fun"], ["bed", "cot"],
-    ["hat", "cap"], ["run", "jog"], ["tip", "top"], ["pan", "pot"],
-    ["ink", "pen"], ["nut", "pea"], ["oar", "row"], ["hug", "pat"],
-  ],
-  4: [
-    ["cold", "warm"], ["love", "hate"], ["dawn", "dusk"], ["head", "tail"],
-    ["dark", "glow"], ["fast", "slow"], ["hard", "soft"], ["fish", "bird"],
-    ["lake", "pond"], ["cake", "tart"], ["bear", "deer"], ["boat", "ship"],
-    ["bone", "skin"], ["coal", "gold"], ["dust", "sand"], ["gate", "door"],
-    ["home", "fort"], ["iron", "rust"], ["rain", "snow"], ["star", "moon"],
-    ["tame", "wild"], ["vine", "tree"], ["wolf", "lamb"], ["bold", "meek"],
-    ["king", "duke"], ["milk", "wine"], ["mist", "haze"], ["book", "page"],
-    ["card", "dice"], ["cave", "mine"], ["fork", "dish"], ["lamp", "glow"],
-    ["nail", "bolt"], ["palm", "fist"], ["salt", "lime"], ["sand", "dirt"],
-  ],
-  5: [
-    ["heart", "brain"], ["flame", "frost"], ["cloud", "storm"],
-    ["stone", "water"], ["house", "cabin"], ["queen", "crown"],
-    ["paint", "brush"], ["river", "creek"], ["tower", "manor"],
-    ["voice", "shout"], ["world", "earth"], ["horse", "rider"],
-    ["grape", "peach"], ["knife", "blade"], ["march", "dance"],
-    ["smile", "frown"], ["brave", "timid"], ["feast", "table"],
-    ["light", "black"], ["night", "dream"], ["giant", "dwarf"],
-  ],
-};
 
 /** Check if two words share any letters in the same position */
 function hasMatchingPositions(a: string, b: string): boolean {
@@ -68,12 +35,12 @@ function hasMatchingPositions(a: string, b: string): boolean {
   return false;
 }
 
-/** BFS to find shortest path, optionally restricted to common words only */
+/** BFS restricted to common words only */
 function bfs(
   start: string,
   target: string,
   graph: Record<string, string[]>,
-  allowedWords?: Set<string>
+  allowedWords: Set<string>
 ): string[] | null {
   if (start === target) return [start];
   if (!graph[start] || !graph[target]) return null;
@@ -83,12 +50,12 @@ function bfs(
 
   while (queue.length > 0) {
     const [current, path] = queue.shift()!;
-    const neighbours = graph[current] || [];
+    if (path.length > MAX_PAR + 1) break;
 
+    const neighbours = graph[current] || [];
     for (const neighbour of neighbours) {
       if (visited.has(neighbour)) continue;
-      // If restricted, only traverse through allowed words
-      if (allowedWords && !allowedWords.has(neighbour) && neighbour !== target) continue;
+      if (!allowedWords.has(neighbour) && neighbour !== target) continue;
 
       if (neighbour === target) {
         return [...path, target];
@@ -101,153 +68,14 @@ function bfs(
   return null;
 }
 
-function getDifficulty(len: number): string {
-  if (len === 3) return "starter";
-  if (len === 4) return "standard";
-  if (len === 5) return "advanced";
-  return "expert";
-}
-
-function getWordLengthForDay(dayOfWeek: number): number {
-  if (dayOfWeek === 0) return 3;
-  if (dayOfWeek >= 5) return 5;
-  return 4;
-}
-
-function main() {
-  // Load graphs and common words
-  const graphs: Record<number, Record<string, string[]>> = {};
-  const commonWords: Record<number, Set<string>> = {};
-
-  for (const len of [3, 4, 5]) {
-    const graphPath = join(DATA_DIR, `graph-${len}.json`);
-    graphs[len] = JSON.parse(readFileSync(graphPath, "utf-8"));
-    console.log(`Loaded graph-${len}.json (${Object.keys(graphs[len]).length} words)`);
-
-    const commonPath = join(DATA_DIR, `common-${len}.json`);
-    if (existsSync(commonPath)) {
-      const commonArr: string[] = JSON.parse(readFileSync(commonPath, "utf-8"));
-      // Only include common words that are in the graph (have neighbours)
-      commonWords[len] = new Set(commonArr.filter((w) => graphs[len][w]));
-      console.log(`Loaded common-${len}.json (${commonWords[len].size} connected common words)`);
-    } else {
-      console.warn(`WARNING: common-${len}.json not found, using all graph words`);
-      commonWords[len] = new Set(Object.keys(graphs[len]));
-    }
-  }
-
-  const puzzles: PuzzleEntry[] = [];
-  const usedPairs = new Set<string>();
-
-  const startDate = new Date("2026-03-20T00:00:00Z");
-
-  for (let dayOffset = 0; dayOffset < 90; dayOffset++) {
-    const date = new Date(startDate.getTime() + dayOffset * 86400000);
-    const dateStr = date.toISOString().split("T")[0];
-    const dayOfWeek = date.getUTCDay();
-    const wordLength = getWordLengthForDay(dayOfWeek);
-    const graph = graphs[wordLength];
-    const common = commonWords[wordLength];
-
-    if (!graph || !common) {
-      console.warn(`No data for length ${wordLength}, skipping ${dateStr}`);
-      continue;
-    }
-
-    let foundPuzzle = false;
-
-    // Try thematic pairs first — BFS restricted to common words only
-    const thematicPairs = THEMATIC_PAIRS[wordLength] || [];
-    for (const [start, target] of thematicPairs) {
-      const pairKey = `${start}-${target}`;
-      if (usedPairs.has(pairKey)) continue;
-      if (!common.has(start) || !common.has(target)) continue;
-      // Start and target must share no letters in the same position
-      if (hasMatchingPositions(start, target)) continue;
-
-      // BFS through common words only — ensures all-common path
-      const path = bfs(start, target, graph, common);
-      if (path && path.length >= 3 && path.length <= 8) {
-        usedPairs.add(pairKey);
-        puzzles.push({
-          id: dayOffset + 1,
-          date: dateStr,
-          startWord: start,
-          targetWord: target,
-          wordLength,
-          par: path.length - 1,
-          optimalPath: path,
-          difficulty: getDifficulty(wordLength),
-        });
-        foundPuzzle = true;
-        break;
-      }
-    }
-
-    // If no thematic pair worked, generate from common words with all-common paths
-    if (!foundPuzzle) {
-      const commonArr = [...common];
-
-      for (let attempt = 0; attempt < 500; attempt++) {
-        const startWord = commonArr[Math.floor(Math.random() * commonArr.length)];
-
-        // BFS from start, restricted to common words, find targets at distance 3-6
-        // Target must share no letters in the same position as start
-        const path = findGoodTarget(startWord, graph, common, wordLength);
-        if (path && !hasMatchingPositions(path[0], path[path.length - 1])) {
-          const pairKey = `${path[0]}-${path[path.length - 1]}`;
-          if (!usedPairs.has(pairKey)) {
-            usedPairs.add(pairKey);
-            puzzles.push({
-              id: dayOffset + 1,
-              date: dateStr,
-              startWord: path[0],
-              targetWord: path[path.length - 1],
-              wordLength,
-              par: path.length - 1,
-              optimalPath: path,
-              difficulty: getDifficulty(wordLength),
-            });
-            foundPuzzle = true;
-            break;
-          }
-        }
-      }
-
-      if (!foundPuzzle) {
-        console.warn(`Could not generate puzzle for ${dateStr}`);
-      }
-    }
-  }
-
-  const outPath = join(DATA_DIR, "daily-puzzles.json");
-  writeFileSync(outPath, JSON.stringify(puzzles, null, 2));
-  console.log(`\n✓ Generated ${puzzles.length} puzzles → daily-puzzles.json`);
-
-  // Verify all paths use common words
-  let allCommon = true;
-  for (const p of puzzles) {
-    const common = commonWords[p.wordLength];
-    for (const word of p.optimalPath) {
-      if (!common.has(word)) {
-        console.warn(`  WARNING: Non-common word "${word}" in puzzle #${p.id} (${p.date})`);
-        allCommon = false;
-      }
-    }
-  }
-  if (allCommon) {
-    console.log("✓ All puzzle paths use only common words!");
-  }
-}
-
 /**
- * BFS from start through common words only, finding targets at distance 3-6.
+ * BFS from start through common words, finding targets at par MIN_PAR to MAX_PAR
+ * with no matching positions.
  */
 function findGoodTarget(
   startWord: string,
   graph: Record<string, string[]>,
-  common: Set<string>,
-  wordLength: number
+  common: Set<string>
 ): string[] | null {
   const visited = new Map<string, string[]>();
   visited.set(startWord, [startWord]);
@@ -256,7 +84,7 @@ function findGoodTarget(
 
   while (queue.length > 0) {
     const [current, path] = queue.shift()!;
-    if (path.length > 7) break;
+    if (path.length > MAX_PAR + 1) break;
 
     const neighbours = graph[current] || [];
     for (const neighbour of neighbours) {
@@ -265,8 +93,8 @@ function findGoodTarget(
         visited.set(neighbour, newPath);
         queue.push([neighbour, newPath]);
 
-        // Only consider targets with no matching positions to the start word
-        if (newPath.length >= 4 && newPath.length <= 7 && !hasMatchingPositions(startWord, neighbour)) {
+        const par = newPath.length - 1;
+        if (par >= MIN_PAR && par <= MAX_PAR && !hasMatchingPositions(startWord, neighbour)) {
           candidates.push(newPath);
         }
       }
@@ -275,9 +103,95 @@ function findGoodTarget(
 
   if (candidates.length === 0) return null;
 
-  const preferred = candidates.filter((p) => p.length >= 4 && p.length <= 6);
-  const pool = preferred.length > 0 ? preferred : candidates;
+  // Prefer harder puzzles (higher par)
+  const harder = candidates.filter((p) => p.length - 1 >= MIN_PAR + 1);
+  const pool = harder.length > 0 ? harder : candidates;
   return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function main() {
+  // Load graph and common words for 5-letter only
+  const graphPath = join(DATA_DIR, `graph-${WORD_LENGTH}.json`);
+  const graph: Record<string, string[]> = JSON.parse(readFileSync(graphPath, "utf-8"));
+  console.log(`Loaded graph-${WORD_LENGTH}.json (${Object.keys(graph).length} words)`);
+
+  const commonPath = join(DATA_DIR, `common-${WORD_LENGTH}.json`);
+  let common: Set<string>;
+  if (existsSync(commonPath)) {
+    const commonArr: string[] = JSON.parse(readFileSync(commonPath, "utf-8"));
+    common = new Set(commonArr.filter((w) => graph[w]));
+    console.log(`Loaded common-${WORD_LENGTH}.json (${common.size} connected common words)`);
+  } else {
+    common = new Set(Object.keys(graph));
+  }
+
+  const puzzles: PuzzleEntry[] = [];
+  const usedPairs = new Set<string>();
+  const commonArr = [...common];
+
+  console.log(`Generating ${PUZZLE_COUNT} puzzles (min par ${MIN_PAR})...`);
+
+  let attempts = 0;
+  while (puzzles.length < PUZZLE_COUNT && attempts < PUZZLE_COUNT * 20) {
+    attempts++;
+    const startWord = commonArr[Math.floor(Math.random() * commonArr.length)];
+
+    const path = findGoodTarget(startWord, graph, common);
+    if (path) {
+      const pairKey = `${path[0]}-${path[path.length - 1]}`;
+      if (!usedPairs.has(pairKey)) {
+        usedPairs.add(pairKey);
+        puzzles.push({
+          id: puzzles.length + 1,
+          startWord: path[0],
+          targetWord: path[path.length - 1],
+          wordLength: WORD_LENGTH,
+          par: path.length - 1,
+          optimalPath: path,
+        });
+
+        if (puzzles.length % 100 === 0) {
+          console.log(`  ${puzzles.length} puzzles generated...`);
+        }
+      }
+    }
+  }
+
+  const outPath = join(DATA_DIR, "daily-puzzles.json");
+  writeFileSync(outPath, JSON.stringify(puzzles));
+  console.log(`\n✓ Generated ${puzzles.length} puzzles → daily-puzzles.json`);
+
+  // Stats
+  const pars = puzzles.map((p) => p.par);
+  const avgPar = (pars.reduce((a, b) => a + b, 0) / pars.length).toFixed(1);
+  const parDist: Record<number, number> = {};
+  pars.forEach((p) => { parDist[p] = (parDist[p] || 0) + 1; });
+  console.log(`Average par: ${avgPar}`);
+  console.log("Par distribution:");
+  Object.keys(parDist).sort((a, b) => +a - +b).forEach((p) => {
+    console.log(`  Par ${p}: ${parDist[+p]} puzzles`);
+  });
+
+  // Verify
+  let allCommon = true;
+  for (const p of puzzles) {
+    for (const word of p.optimalPath) {
+      if (!common.has(word)) {
+        console.warn(`  WARNING: Non-common word "${word}" in puzzle #${p.id}`);
+        allCommon = false;
+      }
+    }
+  }
+  if (allCommon) console.log("✓ All puzzle paths use only common words!");
+
+  let noMatches = true;
+  for (const p of puzzles) {
+    if (hasMatchingPositions(p.startWord, p.targetWord)) {
+      console.warn(`  WARNING: Matching positions in puzzle #${p.id}`);
+      noMatches = false;
+    }
+  }
+  if (noMatches) console.log("✓ No puzzles have matching start/target positions!");
 }
 
 main();

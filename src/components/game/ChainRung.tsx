@@ -49,7 +49,7 @@ export function ChainRung({
 
   const animationClass =
     animate === "lock-in"
-      ? "animate-lock-in animate-gold-flash"
+      ? "animate-lock-in"
       : animate === "shake"
         ? "animate-shake"
         : "";

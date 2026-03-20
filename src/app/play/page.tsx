@@ -1,73 +1,55 @@
 /**
- * Daily Chain — /play
+ * Play — /play
  *
- * Loads today's puzzle, renders the game board + keyboard,
- * manages the full game flow: load → play → complete → result modal.
- * Saves result to localStorage on completion.
+ * Continuous play mode: loads a random puzzle, plays through,
+ * shows result, then loads the next puzzle automatically.
+ * Includes pause menu with new game and exit options.
  */
 
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useGameStore } from "@/lib/stores/gameStore";
 import { loadWordList } from "@/lib/game/dictionary";
 import { ChainBoard } from "@/components/game/ChainBoard";
 import { GameKeyboard } from "@/components/game/GameKeyboard";
 import { ResultModal } from "@/components/game/ResultModal";
 import { Header } from "@/components/layout/Header";
-import { getTodayUTC, getPuzzleNumber, formatTime } from "@/lib/utils/dates";
-import {
-  isTodayCompleted,
-  getTodayCompletion,
-  saveDailyCompletion,
-  getCurrentStreak,
-} from "@/lib/stores/guestStore";
+import { getCurrentStreak } from "@/lib/stores/guestStore";
+import { Pause } from "lucide-react";
 import type { DailyPuzzle } from "@/types";
 
 export default function PlayPage() {
-  const { loadPuzzle, status, score, startTime, puzzle, chain } = useGameStore();
+  const { loadPuzzle, status, score, chain, startWord, targetWord, par } = useGameStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [alreadyCompleted, setAlreadyCompleted] = useState(false);
   const [showResult, setShowResult] = useState(false);
+  const [showPause, setShowPause] = useState(false);
   const [streak, setStreak] = useState(0);
-  const [elapsed, setElapsed] = useState(0);
+  const [puzzleIndex, setPuzzleIndex] = useState(0);
+  const [gamesPlayed, setGamesPlayed] = useState(0);
+  const puzzlesRef = useRef<DailyPuzzle[]>([]);
 
-  // Load today's puzzle
+  // Load puzzles on mount
   useEffect(() => {
     async function load() {
       try {
-        const today = getTodayUTC();
-
-        // Playtest mode: skip completion check — always allow replay
-        // if (isTodayCompleted()) {
-        //   setAlreadyCompleted(true);
-        //   setLoading(false);
-        //   return;
-        // }
-
-        // Fetch daily puzzles
         const response = await fetch("/data/daily-puzzles.json");
         if (!response.ok) throw new Error("Failed to load puzzles");
 
         const puzzles: DailyPuzzle[] = await response.json();
-        const todayPuzzle = puzzles.find((p) => p.date === today);
+        puzzlesRef.current = puzzles;
 
-        if (!todayPuzzle) {
-          setError("No puzzle available for today. Check back later!");
-          setLoading(false);
-          return;
-        }
+        await loadWordList(5);
 
-        // Pre-load the word list for this puzzle's word length
-        await loadWordList(todayPuzzle.wordLength);
-
-        // Load the puzzle into the game store
-        loadPuzzle(todayPuzzle);
+        // Start with a random puzzle
+        const startIdx = Math.floor(Math.random() * puzzles.length);
+        setPuzzleIndex(startIdx);
+        loadPuzzle(puzzles[startIdx]);
         setStreak(getCurrentStreak());
         setLoading(false);
-      } catch (err) {
-        setError("Failed to load today's puzzle. Please try again.");
+      } catch {
+        setError("Failed to load puzzles. Please try again.");
         setLoading(false);
       }
     }
@@ -75,33 +57,35 @@ export default function PlayPage() {
     load();
   }, [loadPuzzle]);
 
-  // Timer
-  useEffect(() => {
-    if (status !== "playing" || !startTime) return;
+  // Load next puzzle
+  const loadNextPuzzle = useCallback(() => {
+    const puzzles = puzzlesRef.current;
+    if (puzzles.length === 0) return;
 
-    const interval = setInterval(() => {
-      setElapsed(Date.now() - startTime);
-    }, 1000);
+    const nextIdx = (puzzleIndex + 1) % puzzles.length;
+    setPuzzleIndex(nextIdx);
+    loadPuzzle(puzzles[nextIdx]);
+    setShowResult(false);
+    setGamesPlayed((g) => g + 1);
+  }, [puzzleIndex, loadPuzzle]);
 
-    return () => clearInterval(interval);
-  }, [status, startTime]);
+  // Load a new random puzzle (from pause menu)
+  const loadNewGame = useCallback(() => {
+    const puzzles = puzzlesRef.current;
+    if (puzzles.length === 0) return;
+
+    const randomIdx = Math.floor(Math.random() * puzzles.length);
+    setPuzzleIndex(randomIdx);
+    loadPuzzle(puzzles[randomIdx]);
+    setShowResult(false);
+    setShowPause(false);
+    setGamesPlayed((g) => g + 1);
+  }, [loadPuzzle]);
 
   // Show result when game completes
   useEffect(() => {
     if (status === "complete" && score) {
-      // Save to localStorage
-      saveDailyCompletion(
-        useGameStore.getState().chain,
-        score.steps,
-        score.par,
-        score.efficiency,
-        score.chainQuality,
-        score.timeMs
-      );
-      setStreak(getCurrentStreak());
-
-      // Small delay before showing modal
-      setTimeout(() => setShowResult(true), 500);
+      setTimeout(() => setShowResult(true), 800);
     }
   }, [status, score]);
 
@@ -134,6 +118,9 @@ export default function PlayPage() {
         const pos = state.selectedPosition;
         if (pos !== null && pos < state.wordLength - 1) state.selectPosition(pos + 1);
         else if (pos === null) state.selectPosition(0);
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        setShowPause((p) => !p);
       }
     };
 
@@ -141,46 +128,13 @@ export default function PlayPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [status]);
 
-  const today = getTodayUTC();
-  const puzzleNumber = getPuzzleNumber(today);
-
-  // Already completed today
-  if (alreadyCompleted) {
-    const completion = getTodayCompletion();
-    return (
-      <div className="flex flex-col min-h-dvh">
-        <Header showBack centerText={`#${puzzleNumber}`} />
-        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
-          <h2 className="font-display text-2xl text-text-primary mb-2">
-            Already Solved!
-          </h2>
-          <p className="text-text-secondary font-body text-sm mb-4">
-            You&apos;ve already completed today&apos;s puzzle.
-          </p>
-          {completion && (
-            <div className="space-y-1 text-sm text-text-secondary font-body">
-              <p>
-                {completion.steps} steps · Par {completion.par}
-              </p>
-              <p>Efficiency: {completion.efficiency}%</p>
-              <p className="capitalize">{completion.chainQuality} Chain</p>
-            </div>
-          )}
-          <p className="mt-4 text-sm text-text-secondary font-body">
-            Come back tomorrow for a new puzzle!
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   if (loading) {
     return (
-      <div className="flex flex-col min-h-dvh">
-        <Header showBack centerText={`#${puzzleNumber}`} />
+      <div className="flex flex-col h-dvh">
+        <Header showBack centerText="SHFT" />
         <div className="flex-1 flex items-center justify-center">
           <p className="text-text-secondary font-body animate-pulse">
-            Loading puzzle...
+            Loading...
           </p>
         </div>
       </div>
@@ -189,7 +143,7 @@ export default function PlayPage() {
 
   if (error) {
     return (
-      <div className="flex flex-col min-h-dvh">
+      <div className="flex flex-col h-dvh">
         <Header showBack />
         <div className="flex-1 flex items-center justify-center px-6 text-center">
           <p className="text-text-secondary font-body">{error}</p>
@@ -199,35 +153,84 @@ export default function PlayPage() {
   }
 
   const currentSteps = chain.length - 1;
-  const puzzlePar = puzzle?.par ?? 0;
 
   return (
     <div className="flex flex-col h-dvh overflow-hidden">
       <Header
         showBack
-        centerText={`#${puzzleNumber}`}
+        centerText={`Game ${gamesPlayed + 1}`}
+        rightContent={
+          <button
+            type="button"
+            onClick={() => setShowPause(true)}
+            aria-label="Pause"
+            className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-md)] bg-bg-elevated text-text-secondary hover:text-text-primary transition-colors"
+          >
+            <Pause size={18} />
+          </button>
+        }
       />
 
-      {/* Stats bar — steps taken and par */}
+      {/* Stats bar */}
       <div className="flex justify-center gap-4 px-4 py-1.5 text-xs font-body text-text-secondary shrink-0">
         <span>Steps: <span className="font-game text-text-primary">{currentSteps}</span></span>
-        <span>Par: <span className="font-game text-text-primary">{puzzlePar}</span></span>
+        <span>Par: <span className="font-game text-text-primary">{par}</span></span>
       </div>
 
       <ChainBoard />
 
       <GameKeyboard />
 
-      {/* Result modal */}
-      {showResult && score && puzzle && (
+      {/* Result modal — NEXT PUZZLE button for continuous play */}
+      {showResult && score && (
         <ResultModal
           score={score}
-          puzzleNumber={puzzleNumber}
-          startWord={puzzle.startWord}
-          targetWord={puzzle.targetWord}
+          puzzleNumber={gamesPlayed + 1}
+          startWord={startWord}
+          targetWord={targetWord}
           streak={streak}
-          onClose={() => setShowResult(false)}
+          onClose={loadNextPuzzle}
+          nextButtonLabel="NEXT PUZZLE"
         />
+      )}
+
+      {/* Pause menu */}
+      {showPause && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={() => setShowPause(false)}
+        >
+          <div
+            className="bg-bg-surface rounded-[var(--radius-md)] shadow-lg w-[80%] max-w-[300px] p-5 animate-slide-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="font-display text-xl text-text-primary text-center mb-5">
+              Paused
+            </h2>
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={() => setShowPause(false)}
+                className="w-full py-2.5 bg-accent-gold text-[#1A1A1A] font-body font-bold text-sm rounded-[var(--radius-lg)] hover:opacity-90"
+              >
+                RESUME
+              </button>
+              <button
+                type="button"
+                onClick={loadNewGame}
+                className="w-full py-2.5 bg-bg-elevated text-text-primary font-body font-medium text-sm rounded-[var(--radius-lg)] hover:bg-border"
+              >
+                NEW GAME
+              </button>
+              <a
+                href="/"
+                className="block w-full py-2.5 bg-bg-elevated text-text-secondary font-body font-medium text-sm rounded-[var(--radius-lg)] hover:bg-border text-center"
+              >
+                EXIT
+              </a>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
