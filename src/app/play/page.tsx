@@ -202,7 +202,7 @@ export default function PlayPage() {
   const puzzlePar = puzzle?.par ?? 0;
 
   return (
-    <div className="flex flex-col min-h-dvh">
+    <div className="flex flex-col h-dvh overflow-hidden">
       <Header
         showBack
         centerText={`#${puzzleNumber}`}
@@ -220,7 +220,7 @@ export default function PlayPage() {
       />
 
       {/* Stats bar — steps taken and par */}
-      <div className="flex justify-center gap-4 px-4 py-1.5 text-xs font-body text-text-secondary">
+      <div className="flex justify-center gap-4 px-4 py-1.5 text-xs font-body text-text-secondary shrink-0">
         <span>Steps: <span className="font-game text-text-primary">{currentSteps}</span></span>
         <span>Par: <span className="font-game text-text-primary">{puzzlePar}</span></span>
       </div>

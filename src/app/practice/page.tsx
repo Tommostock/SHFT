@@ -160,7 +160,7 @@ export default function PracticePage() {
   }
 
   return (
-    <div className="flex flex-col min-h-dvh">
+    <div className="flex flex-col h-dvh overflow-hidden">
       <Header
         showBack
         centerText="Practice"

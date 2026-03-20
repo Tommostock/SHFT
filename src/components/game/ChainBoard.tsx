@@ -1,12 +1,8 @@
 /**
  * ChainBoard — The main game area showing the chain from start to target.
  *
- * Features:
- *   - Chain grows upward from bottom toward the target
- *   - Green flash on all rungs when puzzle is complete
- *   - Smooth scrolling when chain grows
- *   - Tap a locked rung to highlight which letter changed
- *   - Toast messages for invalid/unchainable words
+ * Layout is fixed: target word pinned at top, chain scrolls in the middle,
+ * keyboard stays pinned at bottom. Only the chain area scrolls.
  */
 
 "use client";
@@ -24,7 +20,6 @@ export function ChainBoard() {
     status,
     shakeActive,
     lockInAnimation,
-    completeAnimation,
     unchainableWord,
     notAWord,
     selectPosition,
@@ -89,8 +84,8 @@ export function ChainBoard() {
   const showActiveRung = !isComplete && lastLockedWord !== targetWord;
 
   return (
-    <div className="flex flex-col flex-1 px-4 py-2 overflow-hidden">
-      {/* Target word — always at top */}
+    <div className="flex flex-col flex-1 px-4 py-2 overflow-hidden min-h-0">
+      {/* Target word — pinned at top of chain area */}
       <div className={`flex justify-center py-2 shrink-0 ${isComplete ? "animate-chain-flash-green" : ""}`}>
         <ChainRung
           word={targetWord}
@@ -125,13 +120,6 @@ export function ChainBoard() {
         </div>
       )}
 
-      {/* Chain connector between target and chain when complete */}
-      {isComplete && (
-        <div className="flex justify-center py-0.5 shrink-0">
-          <span className="text-accent-green text-xs">⛓️</span>
-        </div>
-      )}
-
       {/* Gap dots — showing distance to fill (only when playing) */}
       {showActiveRung && (
         <div className="flex justify-center py-1 shrink-0">
@@ -143,10 +131,10 @@ export function ChainBoard() {
         </div>
       )}
 
-      {/* Chain area — grows upward from bottom toward the target */}
+      {/* Scrollable chain area — only this part scrolls */}
       <div
         ref={scrollRef}
-        className="flex-1 flex flex-col justify-end overflow-y-auto scroll-smooth-chain"
+        className="flex-1 flex flex-col justify-end overflow-y-auto min-h-0 scroll-smooth-chain"
       >
         {/* Active rung — current input */}
         {showActiveRung && (
@@ -173,33 +161,23 @@ export function ChainBoard() {
           const prevWord = idx > 0 ? chain[idx - 1] : undefined;
           const isLatestLock = idx === chain.length - 1 && idx > 0;
 
-          const showConnector =
-            reverseIdx > 0 || (reverseIdx === 0 && showActiveRung && chain.length > 1);
-
-          // Determine animation for this rung
           let animate: "lock-in" | "shake" | "gold-flash" | null = null;
           if (isLatestLock && lockInAnimation) animate = "lock-in";
 
-          // When tapped, highlight the changed letter by showing it as "changed"
           const isTapped = tappedRungIdx === idx;
 
           return (
-            <div key={`${idx}-${word}`}>
-              {showConnector && (
-                <div className="flex justify-center py-0.5">
-                  <span className="text-accent-gold text-xs">⛓️</span>
-                </div>
-              )}
-              <div
-                className={`flex justify-center py-0.5 ${isComplete ? "animate-chain-flash-green" : ""}`}
-                style={isComplete ? { animationDelay: `${reverseIdx * 80}ms` } : undefined}
-                onClick={() => {
-                  // Tap a locked rung to highlight which letter changed
-                  if (idx > 0 && status !== "idle") {
-                    setTappedRungIdx(isTapped ? null : idx);
-                  }
-                }}
-              >
+            <div
+              key={`${idx}-${word}`}
+              className={isComplete ? "animate-chain-flash-green" : ""}
+              style={isComplete ? { animationDelay: `${reverseIdx * 80}ms` } : undefined}
+              onClick={() => {
+                if (idx > 0 && status !== "idle") {
+                  setTappedRungIdx(isTapped ? null : idx);
+                }
+              }}
+            >
+              <div className="flex justify-center py-1">
                 <ChainRung
                   word={word}
                   targetWord={targetWord}
