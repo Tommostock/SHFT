@@ -56,7 +56,7 @@ export function ChainRung({
 
   return (
     <div
-      className={`flex items-center gap-1 sm:gap-1.5 ${animationClass}`}
+      className={`flex items-center gap-1.5 sm:gap-2 ${animationClass}`}
       role="row"
       aria-label={
         isStart

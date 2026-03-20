@@ -80,10 +80,10 @@ export function LetterSlot({
       disabled={!canTap}
       aria-label={`Letter ${letter.toUpperCase()} at position ${position + 1}${isSelected ? ", selected" : ""}${matchesTarget ? ", matches target" : ""}`}
       className={`
-        w-10 h-10 sm:w-12 sm:h-12
+        w-[52px] h-[52px] sm:w-[58px] sm:h-[58px]
         flex items-center justify-center
-        font-game text-lg sm:text-xl font-bold uppercase
-        rounded-[var(--radius-sm)]
+        font-game text-2xl sm:text-3xl font-bold uppercase
+        rounded-[6px]
         transition-all duration-200
         ${getSlotStyles()}
       `}
