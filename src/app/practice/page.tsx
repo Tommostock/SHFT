@@ -10,7 +10,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useGameStore } from "@/lib/stores/gameStore";
 import { loadWordList } from "@/lib/game/dictionary";
-import { loadGraph, generateRandomPuzzle } from "@/lib/game/solver";
+import { loadGraph, loadCommonWords, generateRandomPuzzle } from "@/lib/game/solver";
 import { ChainBoard } from "@/components/game/ChainBoard";
 import { GameKeyboard } from "@/components/game/GameKeyboard";
 import { ResultModal } from "@/components/game/ResultModal";
@@ -32,12 +32,13 @@ export default function PracticePage() {
       setShowResult(false);
 
       try {
-        // Load word list and graph
+        // Load word list, graph, and common words
         await loadWordList(length);
         const graph = await loadGraph(length);
+        const common = await loadCommonWords(length);
 
-        // Generate a random puzzle
-        const puzzle = generateRandomPuzzle(graph, length === 3 ? 3 : 4);
+        // Generate a random puzzle using common words only
+        const puzzle = generateRandomPuzzle(graph, length === 3 ? 3 : 4, common);
         if (!puzzle) {
           alert("Could not generate a puzzle. Try a different word length.");
           setLoading(false);

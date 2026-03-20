@@ -62,23 +62,56 @@ export function findShortestPath(
   return null; // No path found
 }
 
+// Cache for common word lists
+const commonCache = new Map<number, Set<string>>();
+
+/**
+ * Load the common words list for a given word length.
+ * Falls back to all graph words if common list isn't available.
+ */
+export async function loadCommonWords(length: number): Promise<Set<string>> {
+  if (commonCache.has(length)) {
+    return commonCache.get(length)!;
+  }
+
+  try {
+    const response = await fetch(`/data/common-${length}.json`);
+    if (response.ok) {
+      const words: string[] = await response.json();
+      const wordSet = new Set(words);
+      commonCache.set(length, wordSet);
+      return wordSet;
+    }
+  } catch {
+    // Fall through
+  }
+
+  // Fallback: return empty set (caller should handle)
+  return new Set();
+}
+
 /**
  * Generate a random puzzle pair from the graph.
- * Picks a random start word, runs BFS, and finds a target at distance 3-6.
- * Returns [startWord, targetWord, optimalPath] or null if no good pair found.
+ * Uses common words for start/target and traverses only common words
+ * to ensure the optimal path contains no obscure words.
  */
 export function generateRandomPuzzle(
   graph: WordGraph,
-  preferredDistance: number = 4
+  preferredDistance: number = 4,
+  commonWords?: Set<string>
 ): { start: string; target: string; path: string[]; par: number } | null {
-  const words = Object.keys(graph);
-  if (words.length === 0) return null;
+  // Use common words if provided, otherwise use all graph words
+  const startPool = commonWords && commonWords.size > 0
+    ? [...commonWords].filter((w) => graph[w])
+    : Object.keys(graph);
 
-  // Try up to 50 random start words
-  for (let attempt = 0; attempt < 50; attempt++) {
-    const startWord = words[Math.floor(Math.random() * words.length)];
+  if (startPool.length === 0) return null;
 
-    // BFS to find words at the preferred distance
+  // Try up to 80 random start words
+  for (let attempt = 0; attempt < 80; attempt++) {
+    const startWord = startPool[Math.floor(Math.random() * startPool.length)];
+
+    // BFS through common words only (if provided)
     const visited = new Map<string, string[]>();
     visited.set(startWord, [startWord]);
     const queue: [string, string[]][] = [[startWord, [startWord]]];
@@ -90,22 +123,22 @@ export function generateRandomPuzzle(
 
       const neighbours = graph[current] || [];
       for (const neighbour of neighbours) {
-        if (!visited.has(neighbour)) {
-          const newPath = [...path, neighbour];
-          visited.set(neighbour, newPath);
-          queue.push([neighbour, newPath]);
+        if (visited.has(neighbour)) continue;
+        // Only traverse through common words if the list is provided
+        if (commonWords && commonWords.size > 0 && !commonWords.has(neighbour)) continue;
 
-          // Collect candidates at good distances
-          const dist = newPath.length - 1;
-          if (dist >= 3 && dist <= 6) {
-            candidates.push({ word: neighbour, path: newPath });
-          }
+        const newPath = [...path, neighbour];
+        visited.set(neighbour, newPath);
+        queue.push([neighbour, newPath]);
+
+        const dist = newPath.length - 1;
+        if (dist >= 3 && dist <= 6) {
+          candidates.push({ word: neighbour, path: newPath });
         }
       }
     }
 
     if (candidates.length > 0) {
-      // Prefer candidates near the preferred distance
       const preferred = candidates.filter(
         (c) => Math.abs(c.path.length - 1 - preferredDistance) <= 1
       );
