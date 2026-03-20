@@ -138,6 +138,16 @@ function main() {
     const filteredWords = allWords.filter((w) => mainComponent.has(w));
     writeFileSync(wordsPath, JSON.stringify(filteredWords));
 
+    // Write unchainable words list — real English words that can't participate
+    // in word chains because they're in disconnected graph components.
+    // The game shows a distinct message when a player types one of these.
+    const unchainable = allWords.filter((w) => !mainComponent.has(w));
+    if (unchainable.length > 0) {
+      const unchainablePath = join(DATA_DIR, `unchainable-${len}.json`);
+      writeFileSync(unchainablePath, JSON.stringify(unchainable));
+      console.log(`  unchainable-${len}.json: ${unchainable.length} real but unchainable words`);
+    }
+
     console.log(
       `  graph-${len}.json: ${mainComponent.size} words, ${totalEdges} edges`
     );

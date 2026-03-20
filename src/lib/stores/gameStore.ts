@@ -10,7 +10,7 @@
 import { create } from "zustand";
 import type { DailyPuzzle, GameStatus, ScoreResult } from "@/types";
 import { isValidStep } from "@/lib/game/validator";
-import { isWord } from "@/lib/game/dictionary";
+import { isWord, isUnchainable } from "@/lib/game/dictionary";
 import { calculateScore } from "@/lib/game/scorer";
 
 interface GameState {
@@ -39,6 +39,10 @@ interface GameState {
   lockInAnimation: boolean;
   completeAnimation: boolean;
 
+  // Unchainable word feedback — shown when player types a real word
+  // that can't participate in word chains (e.g., "iron", "pizza")
+  unchainableWord: string | null;
+
   // Actions
   loadPuzzle: (puzzle: DailyPuzzle) => void;
   loadCustomPuzzle: (start: string, target: string, par: number) => void;
@@ -48,6 +52,7 @@ interface GameState {
   resetGame: () => void;
   clearShake: () => void;
   clearLockIn: () => void;
+  clearUnchainable: () => void;
 }
 
 export const useGameStore = create<GameState>((set, get) => ({
@@ -67,6 +72,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   shakeActive: false,
   lockInAnimation: false,
   completeAnimation: false,
+  unchainableWord: null,
 
   /**
    * Load a daily puzzle into the store.
@@ -193,11 +199,14 @@ export const useGameStore = create<GameState>((set, get) => ({
         lockInAnimation: true,
       });
     } else if (newWord !== lastLockedWord) {
-      // Check if it's even a real word (for visual feedback)
-      // If we changed exactly 1 letter and it's not a valid word, shake
       const diffCount = countDiff(lastLockedWord, newWord);
       if (diffCount === 1 && !isWord(newWord)) {
-        set({ shakeActive: true });
+        // Check if this is a real word that just can't form chains
+        if (isUnchainable(newWord)) {
+          set({ shakeActive: true, unchainableWord: newWord });
+        } else {
+          set({ shakeActive: true });
+        }
         triggerHaptic("invalid");
       }
     }
@@ -244,6 +253,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   clearShake: () => set({ shakeActive: false }),
   clearLockIn: () => set({ lockInAnimation: false }),
+  clearUnchainable: () => set({ unchainableWord: null }),
 }));
 
 /** Count the number of differing characters between two same-length strings */

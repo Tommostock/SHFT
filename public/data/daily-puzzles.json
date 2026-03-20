@@ -2,32 +2,32 @@
   {
     "id": 1,
     "date": "2026-03-20",
-    "startWord": "being",
-    "targetWord": "trunk",
+    "startWord": "reach",
+    "targetWord": "place",
     "wordLength": 5,
-    "par": 5,
+    "par": 3,
     "optimalPath": [
-      "being",
-      "bring",
-      "brink",
-      "drink",
-      "drunk",
-      "trunk"
+      "reach",
+      "peach",
+      "peace",
+      "place"
     ],
     "difficulty": "advanced"
   },
   {
     "id": 2,
     "date": "2026-03-21",
-    "startWord": "toast",
-    "targetWord": "least",
+    "startWord": "alone",
+    "targetWord": "cease",
     "wordLength": 5,
-    "par": 3,
+    "par": 5,
     "optimalPath": [
-      "toast",
-      "boast",
-      "beast",
-      "least"
+      "alone",
+      "clone",
+      "close",
+      "chose",
+      "chase",
+      "cease"
     ],
     "difficulty": "advanced"
   },
@@ -118,32 +118,33 @@
   {
     "id": 8,
     "date": "2026-03-27",
-    "startWord": "scrap",
-    "targetWord": "spray",
+    "startWord": "slave",
+    "targetWord": "skill",
     "wordLength": 5,
-    "par": 3,
+    "par": 5,
     "optimalPath": [
-      "scrap",
-      "strap",
-      "stray",
-      "spray"
+      "slave",
+      "stave",
+      "stale",
+      "stall",
+      "still",
+      "skill"
     ],
     "difficulty": "advanced"
   },
   {
     "id": 9,
     "date": "2026-03-28",
-    "startWord": "teach",
-    "targetWord": "couch",
+    "startWord": "flunk",
+    "targetWord": "blend",
     "wordLength": 5,
-    "par": 5,
+    "par": 4,
     "optimalPath": [
-      "teach",
-      "peach",
-      "perch",
-      "porch",
-      "pouch",
-      "couch"
+      "flunk",
+      "flank",
+      "blank",
+      "bland",
+      "blend"
     ],
     "difficulty": "advanced"
   },
@@ -237,30 +238,31 @@
   {
     "id": 15,
     "date": "2026-04-03",
-    "startWord": "strip",
-    "targetWord": "spray",
+    "startWord": "shawl",
+    "targetWord": "skill",
     "wordLength": 5,
-    "par": 3,
+    "par": 4,
     "optimalPath": [
-      "strip",
-      "strap",
-      "stray",
-      "spray"
+      "shawl",
+      "shall",
+      "stall",
+      "still",
+      "skill"
     ],
     "difficulty": "advanced"
   },
   {
     "id": 16,
     "date": "2026-04-04",
-    "startWord": "stare",
-    "targetWord": "spice",
+    "startWord": "storm",
+    "targetWord": "style",
     "wordLength": 5,
     "par": 3,
     "optimalPath": [
-      "stare",
-      "spare",
-      "space",
-      "spice"
+      "storm",
+      "store",
+      "stole",
+      "style"
     ],
     "difficulty": "advanced"
   },
@@ -347,31 +349,33 @@
   {
     "id": 22,
     "date": "2026-04-10",
-    "startWord": "stare",
-    "targetWord": "shall",
+    "startWord": "grant",
+    "targetWord": "bleed",
     "wordLength": 5,
-    "par": 3,
+    "par": 5,
     "optimalPath": [
-      "stare",
-      "stale",
-      "stall",
-      "shall"
+      "grant",
+      "grand",
+      "brand",
+      "bland",
+      "blend",
+      "bleed"
     ],
     "difficulty": "advanced"
   },
   {
     "id": 23,
     "date": "2026-04-11",
-    "startWord": "break",
-    "targetWord": "blend",
+    "startWord": "grade",
+    "targetWord": "trick",
     "wordLength": 5,
     "par": 4,
     "optimalPath": [
-      "break",
-      "bread",
-      "breed",
-      "bleed",
-      "blend"
+      "grade",
+      "grace",
+      "trace",
+      "track",
+      "trick"
     ],
     "difficulty": "advanced"
   },
@@ -463,31 +467,30 @@
   {
     "id": 29,
     "date": "2026-04-17",
-    "startWord": "score",
-    "targetWord": "shake",
+    "startWord": "focal",
+    "targetWord": "royal",
     "wordLength": 5,
     "par": 3,
     "optimalPath": [
-      "score",
-      "scare",
-      "share",
-      "shake"
+      "focal",
+      "local",
+      "loyal",
+      "royal"
     ],
     "difficulty": "advanced"
   },
   {
     "id": 30,
     "date": "2026-04-18",
-    "startWord": "stung",
-    "targetWord": "snack",
+    "startWord": "crust",
+    "targetWord": "clash",
     "wordLength": 5,
-    "par": 4,
+    "par": 3,
     "optimalPath": [
-      "stung",
-      "stunk",
-      "stuck",
-      "stack",
-      "snack"
+      "crust",
+      "crush",
+      "crash",
+      "clash"
     ],
     "difficulty": "advanced"
   },
@@ -580,34 +583,30 @@
   {
     "id": 36,
     "date": "2026-04-24",
-    "startWord": "brook",
-    "targetWord": "floor",
+    "startWord": "chase",
+    "targetWord": "clone",
     "wordLength": 5,
-    "par": 5,
+    "par": 3,
     "optimalPath": [
-      "brook",
-      "broom",
-      "bloom",
-      "blood",
-      "flood",
-      "floor"
+      "chase",
+      "chose",
+      "close",
+      "clone"
     ],
     "difficulty": "advanced"
   },
   {
     "id": 37,
     "date": "2026-04-25",
-    "startWord": "spell",
-    "targetWord": "scale",
+    "startWord": "along",
+    "targetWord": "close",
     "wordLength": 5,
-    "par": 5,
+    "par": 3,
     "optimalPath": [
-      "spell",
-      "shell",
-      "shall",
-      "stall",
-      "stale",
-      "scale"
+      "along",
+      "alone",
+      "clone",
+      "close"
     ],
     "difficulty": "advanced"
   },
@@ -697,30 +696,31 @@
   {
     "id": 43,
     "date": "2026-05-01",
-    "startWord": "would",
-    "targetWord": "mount",
+    "startWord": "crust",
+    "targetWord": "clasp",
     "wordLength": 5,
-    "par": 3,
+    "par": 4,
     "optimalPath": [
-      "would",
-      "wound",
-      "mound",
-      "mount"
+      "crust",
+      "crush",
+      "crash",
+      "clash",
+      "clasp"
     ],
     "difficulty": "advanced"
   },
   {
     "id": 44,
     "date": "2026-05-02",
-    "startWord": "worst",
-    "targetWord": "house",
+    "startWord": "lover",
+    "targetWord": "rider",
     "wordLength": 5,
     "par": 3,
     "optimalPath": [
-      "worst",
-      "worse",
-      "horse",
-      "house"
+      "lover",
+      "liver",
+      "river",
+      "rider"
     ],
     "difficulty": "advanced"
   },
@@ -811,32 +811,32 @@
   {
     "id": 50,
     "date": "2026-05-08",
-    "startWord": "spite",
-    "targetWord": "story",
+    "startWord": "groin",
+    "targetWord": "crowd",
     "wordLength": 5,
-    "par": 5,
+    "par": 3,
     "optimalPath": [
-      "spite",
-      "spike",
-      "spoke",
-      "stoke",
-      "store",
-      "story"
+      "groin",
+      "grown",
+      "crown",
+      "crowd"
     ],
     "difficulty": "advanced"
   },
   {
     "id": 51,
     "date": "2026-05-09",
-    "startWord": "worse",
-    "targetWord": "mouse",
+    "startWord": "alone",
+    "targetWord": "phase",
     "wordLength": 5,
-    "par": 3,
+    "par": 5,
     "optimalPath": [
-      "worse",
-      "horse",
-      "house",
-      "mouse"
+      "alone",
+      "clone",
+      "close",
+      "chose",
+      "chase",
+      "phase"
     ],
     "difficulty": "advanced"
   },
@@ -891,65 +891,66 @@
   {
     "id": 55,
     "date": "2026-05-13",
-    "startWord": "mine",
-    "targetWord": "wish",
+    "startWord": "bane",
+    "targetWord": "silk",
     "wordLength": 4,
-    "par": 3,
+    "par": 4,
     "optimalPath": [
-      "mine",
-      "wine",
-      "wise",
-      "wish"
+      "bane",
+      "bank",
+      "sank",
+      "sink",
+      "silk"
     ],
     "difficulty": "standard"
   },
   {
     "id": 56,
     "date": "2026-05-14",
-    "startWord": "care",
-    "targetWord": "hawk",
+    "startWord": "fury",
+    "targetWord": "silt",
     "wordLength": 4,
     "par": 5,
     "optimalPath": [
-      "care",
-      "bare",
-      "bark",
-      "back",
-      "hack",
-      "hawk"
+      "fury",
+      "furl",
+      "full",
+      "fill",
+      "sill",
+      "silt"
     ],
     "difficulty": "standard"
   },
   {
     "id": 57,
     "date": "2026-05-15",
-    "startWord": "giant",
-    "targetWord": "blank",
+    "startWord": "match",
+    "targetWord": "punch",
     "wordLength": 5,
-    "par": 5,
+    "par": 4,
     "optimalPath": [
-      "giant",
-      "grant",
-      "grand",
-      "brand",
-      "bland",
-      "blank"
+      "match",
+      "patch",
+      "pitch",
+      "pinch",
+      "punch"
     ],
     "difficulty": "advanced"
   },
   {
     "id": 58,
     "date": "2026-05-16",
-    "startWord": "stock",
-    "targetWord": "stake",
+    "startWord": "spice",
+    "targetWord": "guise",
     "wordLength": 5,
-    "par": 4,
+    "par": 5,
     "optimalPath": [
-      "stock",
-      "stack",
-      "stark",
-      "stare",
-      "stake"
+      "spice",
+      "slice",
+      "slide",
+      "glide",
+      "guide",
+      "guise"
     ],
     "difficulty": "advanced"
   },
@@ -971,93 +972,97 @@
   {
     "id": 60,
     "date": "2026-05-18",
-    "startWord": "gust",
-    "targetWord": "boar",
+    "startWord": "gang",
+    "targetWord": "ford",
     "wordLength": 4,
     "par": 5,
     "optimalPath": [
-      "gust",
-      "bust",
-      "best",
-      "beat",
-      "bear",
-      "boar"
+      "gang",
+      "bang",
+      "band",
+      "bond",
+      "fond",
+      "ford"
     ],
     "difficulty": "standard"
   },
   {
     "id": 61,
     "date": "2026-05-19",
-    "startWord": "cord",
-    "targetWord": "some",
+    "startWord": "lack",
+    "targetWord": "pale",
     "wordLength": 4,
     "par": 3,
     "optimalPath": [
-      "cord",
-      "core",
-      "come",
-      "some"
+      "lack",
+      "lace",
+      "pace",
+      "pale"
     ],
     "difficulty": "standard"
   },
   {
     "id": 62,
     "date": "2026-05-20",
-    "startWord": "rout",
-    "targetWord": "foul",
+    "startWord": "poll",
+    "targetWord": "comb",
     "wordLength": 4,
-    "par": 4,
+    "par": 5,
     "optimalPath": [
-      "rout",
-      "root",
-      "foot",
-      "fool",
-      "foul"
+      "poll",
+      "pole",
+      "hole",
+      "home",
+      "come",
+      "comb"
     ],
     "difficulty": "standard"
   },
   {
     "id": 63,
     "date": "2026-05-21",
-    "startWord": "swap",
-    "targetWord": "slit",
+    "startWord": "pole",
+    "targetWord": "lack",
     "wordLength": 4,
-    "par": 3,
+    "par": 4,
     "optimalPath": [
-      "swap",
-      "slap",
-      "slip",
-      "slit"
+      "pole",
+      "pale",
+      "pace",
+      "lace",
+      "lack"
     ],
     "difficulty": "standard"
   },
   {
     "id": 64,
     "date": "2026-05-22",
-    "startWord": "stake",
-    "targetWord": "spark",
+    "startWord": "vocal",
+    "targetWord": "royal",
     "wordLength": 5,
     "par": 3,
     "optimalPath": [
-      "stake",
-      "stare",
-      "spare",
-      "spark"
+      "vocal",
+      "local",
+      "loyal",
+      "royal"
     ],
     "difficulty": "advanced"
   },
   {
     "id": 65,
     "date": "2026-05-23",
-    "startWord": "blood",
-    "targetWord": "groom",
+    "startWord": "thick",
+    "targetWord": "blank",
     "wordLength": 5,
-    "par": 3,
+    "par": 5,
     "optimalPath": [
-      "blood",
-      "bloom",
-      "broom",
-      "groom"
+      "thick",
+      "trick",
+      "brick",
+      "brink",
+      "blink",
+      "blank"
     ],
     "difficulty": "advanced"
   },
@@ -1078,95 +1083,100 @@
   {
     "id": 67,
     "date": "2026-05-25",
-    "startWord": "gram",
-    "targetWord": "trip",
+    "startWord": "lane",
+    "targetWord": "feed",
     "wordLength": 4,
-    "par": 3,
+    "par": 5,
     "optimalPath": [
-      "gram",
-      "grim",
-      "grip",
-      "trip"
+      "lane",
+      "land",
+      "lend",
+      "send",
+      "seed",
+      "feed"
     ],
     "difficulty": "standard"
   },
   {
     "id": 68,
     "date": "2026-05-26",
-    "startWord": "fake",
-    "targetWord": "wall",
+    "startWord": "ford",
+    "targetWord": "hate",
     "wordLength": 4,
     "par": 4,
     "optimalPath": [
-      "fake",
-      "bake",
-      "bale",
-      "ball",
-      "wall"
+      "ford",
+      "fore",
+      "fare",
+      "fate",
+      "hate"
     ],
     "difficulty": "standard"
   },
   {
     "id": 69,
     "date": "2026-05-27",
-    "startWord": "file",
-    "targetWord": "sold",
+    "startWord": "neat",
+    "targetWord": "dart",
     "wordLength": 4,
-    "par": 4,
+    "par": 5,
     "optimalPath": [
-      "file",
-      "mile",
-      "mild",
-      "mold",
-      "sold"
+      "neat",
+      "nest",
+      "pest",
+      "past",
+      "part",
+      "dart"
     ],
     "difficulty": "standard"
   },
   {
     "id": 70,
     "date": "2026-05-28",
-    "startWord": "hook",
-    "targetWord": "half",
+    "startWord": "pawn",
+    "targetWord": "bell",
     "wordLength": 4,
     "par": 5,
     "optimalPath": [
-      "hook",
-      "hood",
-      "hold",
-      "hole",
-      "hale",
-      "half"
+      "pawn",
+      "pain",
+      "pail",
+      "bail",
+      "ball",
+      "bell"
     ],
     "difficulty": "standard"
   },
   {
     "id": 71,
     "date": "2026-05-29",
-    "startWord": "tough",
-    "targetWord": "route",
+    "startWord": "shine",
+    "targetWord": "stake",
     "wordLength": 5,
-    "par": 3,
+    "par": 5,
     "optimalPath": [
-      "tough",
-      "rough",
-      "rouge",
-      "route"
+      "shine",
+      "spine",
+      "spike",
+      "spoke",
+      "stoke",
+      "stake"
     ],
     "difficulty": "advanced"
   },
   {
     "id": 72,
     "date": "2026-05-30",
-    "startWord": "flask",
-    "targetWord": "place",
+    "startWord": "spice",
+    "targetWord": "shark",
     "wordLength": 5,
     "par": 4,
     "optimalPath": [
-      "flask",
-      "flank",
-      "plank",
-      "plane",
-      "place"
+      "spice",
+      "space",
+      "spare",
+      "share",
+      "shark"
     ],
     "difficulty": "advanced"
   },
@@ -1189,101 +1199,98 @@
   {
     "id": 74,
     "date": "2026-06-01",
-    "startWord": "flow",
-    "targetWord": "bean",
+    "startWord": "noon",
+    "targetWord": "bead",
     "wordLength": 4,
     "par": 5,
     "optimalPath": [
-      "flow",
-      "flaw",
-      "flat",
-      "feat",
-      "beat",
-      "bean"
+      "noon",
+      "moon",
+      "moan",
+      "mean",
+      "bean",
+      "bead"
     ],
     "difficulty": "standard"
   },
   {
     "id": 75,
     "date": "2026-06-02",
-    "startWord": "mold",
-    "targetWord": "hide",
+    "startWord": "buck",
+    "targetWord": "fade",
     "wordLength": 4,
     "par": 5,
     "optimalPath": [
-      "mold",
-      "mild",
-      "mile",
-      "rile",
-      "ride",
-      "hide"
+      "buck",
+      "back",
+      "bark",
+      "bare",
+      "fare",
+      "fade"
     ],
     "difficulty": "standard"
   },
   {
     "id": 76,
     "date": "2026-06-03",
-    "startWord": "dock",
-    "targetWord": "sole",
+    "startWord": "dame",
+    "targetWord": "diet",
     "wordLength": 4,
-    "par": 5,
+    "par": 4,
     "optimalPath": [
-      "dock",
-      "pock",
-      "pork",
-      "pore",
-      "pole",
-      "sole"
+      "dame",
+      "dare",
+      "dart",
+      "dirt",
+      "diet"
     ],
     "difficulty": "standard"
   },
   {
     "id": 77,
     "date": "2026-06-04",
-    "startWord": "took",
-    "targetWord": "calf",
+    "startWord": "prey",
+    "targetWord": "grip",
     "wordLength": 4,
     "par": 5,
     "optimalPath": [
-      "took",
-      "tool",
-      "toll",
-      "tall",
-      "call",
-      "calf"
+      "prey",
+      "grey",
+      "gray",
+      "gram",
+      "grim",
+      "grip"
     ],
     "difficulty": "standard"
   },
   {
     "id": 78,
     "date": "2026-06-05",
-    "startWord": "brace",
-    "targetWord": "prone",
+    "startWord": "stink",
+    "targetWord": "swung",
     "wordLength": 5,
-    "par": 5,
+    "par": 3,
     "optimalPath": [
-      "brace",
-      "brave",
-      "grave",
-      "grove",
-      "prove",
-      "prone"
+      "stink",
+      "sting",
+      "stung",
+      "swung"
     ],
     "difficulty": "advanced"
   },
   {
     "id": 79,
     "date": "2026-06-06",
-    "startWord": "slash",
-    "targetWord": "blank",
+    "startWord": "chest",
+    "targetWord": "crash",
     "wordLength": 5,
     "par": 4,
     "optimalPath": [
-      "slash",
-      "flash",
-      "flask",
-      "flank",
-      "blank"
+      "chest",
+      "crest",
+      "crust",
+      "crush",
+      "crash"
     ],
     "difficulty": "advanced"
   },
@@ -1306,98 +1313,94 @@
   {
     "id": 81,
     "date": "2026-06-08",
-    "startWord": "lead",
-    "targetWord": "mint",
+    "startWord": "mood",
+    "targetWord": "farm",
     "wordLength": 4,
     "par": 4,
     "optimalPath": [
-      "lead",
-      "lend",
-      "mend",
-      "mind",
-      "mint"
+      "mood",
+      "food",
+      "ford",
+      "form",
+      "farm"
     ],
     "difficulty": "standard"
   },
   {
     "id": 82,
     "date": "2026-06-09",
-    "startWord": "dome",
-    "targetWord": "took",
+    "startWord": "sunk",
+    "targetWord": "mile",
     "wordLength": 4,
-    "par": 5,
+    "par": 4,
     "optimalPath": [
-      "dome",
-      "come",
-      "core",
-      "cork",
-      "cook",
-      "took"
+      "sunk",
+      "sink",
+      "silk",
+      "milk",
+      "mile"
     ],
     "difficulty": "standard"
   },
   {
     "id": 83,
     "date": "2026-06-10",
-    "startWord": "meet",
-    "targetWord": "vale",
+    "startWord": "swap",
+    "targetWord": "roam",
     "wordLength": 4,
     "par": 4,
     "optimalPath": [
-      "meet",
-      "melt",
-      "malt",
-      "male",
-      "vale"
+      "swap",
+      "soap",
+      "soar",
+      "roar",
+      "roam"
     ],
     "difficulty": "standard"
   },
   {
     "id": 84,
     "date": "2026-06-11",
-    "startWord": "root",
-    "targetWord": "wire",
+    "startWord": "held",
+    "targetWord": "warn",
     "wordLength": 4,
-    "par": 5,
+    "par": 4,
     "optimalPath": [
-      "root",
-      "foot",
-      "fort",
-      "fore",
-      "fire",
-      "wire"
+      "held",
+      "herd",
+      "hard",
+      "ward",
+      "warn"
     ],
     "difficulty": "standard"
   },
   {
     "id": 85,
     "date": "2026-06-12",
-    "startWord": "sleep",
-    "targetWord": "creek",
+    "startWord": "sound",
+    "targetWord": "count",
     "wordLength": 5,
-    "par": 5,
+    "par": 3,
     "optimalPath": [
-      "sleep",
-      "sheep",
-      "sheer",
-      "cheer",
-      "cheek",
-      "creek"
+      "sound",
+      "mound",
+      "mount",
+      "count"
     ],
     "difficulty": "advanced"
   },
   {
     "id": 86,
     "date": "2026-06-13",
-    "startWord": "trait",
-    "targetWord": "drawn",
+    "startWord": "drape",
+    "targetWord": "gravy",
     "wordLength": 5,
     "par": 3,
     "optimalPath": [
-      "trait",
-      "train",
-      "drain",
-      "drawn"
+      "drape",
+      "grape",
+      "grave",
+      "gravy"
     ],
     "difficulty": "advanced"
   },
@@ -1418,50 +1421,51 @@
   {
     "id": 88,
     "date": "2026-06-15",
-    "startWord": "bird",
-    "targetWord": "lose",
+    "startWord": "ward",
+    "targetWord": "junk",
     "wordLength": 4,
     "par": 5,
     "optimalPath": [
-      "bird",
-      "bind",
-      "bond",
-      "bone",
-      "lone",
-      "lose"
+      "ward",
+      "wand",
+      "band",
+      "bank",
+      "bunk",
+      "junk"
     ],
     "difficulty": "standard"
   },
   {
     "id": 89,
     "date": "2026-06-16",
-    "startWord": "wild",
-    "targetWord": "food",
+    "startWord": "bomb",
+    "targetWord": "ooze",
     "wordLength": 4,
-    "par": 4,
+    "par": 5,
     "optimalPath": [
-      "wild",
-      "gild",
-      "gold",
-      "fold",
-      "food"
+      "bomb",
+      "comb",
+      "come",
+      "dome",
+      "doze",
+      "ooze"
     ],
     "difficulty": "standard"
   },
   {
     "id": 90,
     "date": "2026-06-17",
-    "startWord": "moss",
-    "targetWord": "jean",
+    "startWord": "hull",
+    "targetWord": "rank",
     "wordLength": 4,
     "par": 5,
     "optimalPath": [
-      "moss",
-      "most",
-      "moat",
-      "meat",
-      "mean",
-      "jean"
+      "hull",
+      "bull",
+      "bulk",
+      "bunk",
+      "bank",
+      "rank"
     ],
     "difficulty": "standard"
   }

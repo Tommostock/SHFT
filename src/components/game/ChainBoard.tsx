@@ -24,9 +24,11 @@ export function ChainBoard() {
     status,
     shakeActive,
     lockInAnimation,
+    unchainableWord,
     selectPosition,
     clearShake,
     clearLockIn,
+    clearUnchainable,
   } = useGameStore();
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -34,7 +36,6 @@ export function ChainBoard() {
   // Auto-scroll to keep active rung visible when chain grows
   useEffect(() => {
     if (scrollRef.current) {
-      // Scroll to top to show the active rung (newest content is at top)
       scrollRef.current.scrollTop = 0;
     }
   }, [chain.length]);
@@ -55,6 +56,14 @@ export function ChainBoard() {
     }
   }, [lockInAnimation, clearLockIn]);
 
+  // Clear unchainable word message after 2 seconds
+  useEffect(() => {
+    if (unchainableWord) {
+      const timer = setTimeout(clearUnchainable, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [unchainableWord, clearUnchainable]);
+
   const isComplete = status === "complete";
   const lastLockedWord = chain[chain.length - 1];
   const showActiveRung = !isComplete && lastLockedWord !== targetWord;
@@ -73,6 +82,18 @@ export function ChainBoard() {
           onSelectPosition={() => {}}
         />
       </div>
+
+      {/* Toast message for unchainable words */}
+      {unchainableWord && (
+        <div className="flex justify-center py-1.5 shrink-0 animate-slide-up">
+          <div className="px-3 py-1.5 bg-bg-surface border border-border rounded-[var(--radius-md)] shadow-[var(--shadow)]">
+            <p className="text-xs text-text-secondary font-body text-center">
+              <span className="font-medium text-text-primary uppercase">{unchainableWord}</span>
+              {" "}is a real word but can&apos;t form chains
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Gap dots — showing distance to fill */}
       {showActiveRung && (
