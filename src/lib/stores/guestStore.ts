@@ -5,7 +5,7 @@
 
 import type { GuestData, GuestCompletion, ChainQuality } from "@/types";
 import { STORAGE_KEYS } from "@/lib/utils/constants";
-import { getTodayUTC } from "@/lib/utils/dates";
+import { getTodayUTC, getYesterdayUTC } from "@/lib/utils/dates";
 
 const DEFAULT_GUEST_DATA: GuestData = {
   completions: {},
@@ -82,9 +82,7 @@ export function saveDailyCompletion(
   };
 
   // Update streak
-  const yesterday = new Date();
-  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
-  const yesterdayStr = yesterday.toISOString().split("T")[0];
+  const yesterdayStr = getYesterdayUTC();
 
   if (data.lastPlayedDate === yesterdayStr) {
     // Continuing a streak
@@ -98,7 +96,7 @@ export function saveDailyCompletion(
   data.lastPlayedDate = today;
 
   // Prune old completions (keep last 30 days)
-  const cutoffDate = new Date();
+  const cutoffDate = new Date(today + "T00:00:00Z");
   cutoffDate.setUTCDate(cutoffDate.getUTCDate() - 30);
   const cutoffStr = cutoffDate.toISOString().split("T")[0];
 
@@ -115,9 +113,7 @@ export function saveDailyCompletion(
 export function getCurrentStreak(): number {
   const data = loadGuestData();
   const today = getTodayUTC();
-  const yesterday = new Date();
-  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
-  const yesterdayStr = yesterday.toISOString().split("T")[0];
+  const yesterdayStr = getYesterdayUTC();
 
   // Streak is valid if last played was today or yesterday
   if (

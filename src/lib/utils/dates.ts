@@ -24,6 +24,17 @@ export function getDayOfWeek(dateStr: string): number {
   return date.getUTCDay();
 }
 
+/** Get yesterday's date as YYYY-MM-DD in UTC */
+export function getYesterdayUTC(): string {
+  const now = new Date();
+  const yesterday = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate() - 1
+  ));
+  return yesterday.toISOString().split("T")[0];
+}
+
 /** Format milliseconds as M:SS */
 export function formatTime(ms: number): string {
   const totalSeconds = Math.floor(ms / 1000);
