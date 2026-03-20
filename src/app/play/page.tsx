@@ -39,12 +39,12 @@ export default function PlayPage() {
       try {
         const today = getTodayUTC();
 
-        // Check if already completed
-        if (isTodayCompleted()) {
-          setAlreadyCompleted(true);
-          setLoading(false);
-          return;
-        }
+        // Playtest mode: skip completion check — always allow replay
+        // if (isTodayCompleted()) {
+        //   setAlreadyCompleted(true);
+        //   setLoading(false);
+        //   return;
+        // }
 
         // Fetch daily puzzles
         const response = await fetch("/data/daily-puzzles.json");
@@ -206,17 +206,6 @@ export default function PlayPage() {
       <Header
         showBack
         centerText={`#${puzzleNumber}`}
-        rightContent={
-          startTime ? (
-            <span className="font-game text-sm text-text-secondary tabular-nums">
-              {formatTime(elapsed)}
-            </span>
-          ) : (
-            <span className="font-game text-sm text-text-secondary">
-              ⏱ 0:00
-            </span>
-          )
-        }
       />
 
       {/* Stats bar — steps taken and par */}

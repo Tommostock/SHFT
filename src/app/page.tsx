@@ -82,11 +82,6 @@ export default function HomePage() {
             <h2 className="font-display text-xl text-text-primary">
               Daily Chain
             </h2>
-            {completed && (
-              <span className="text-xs font-body text-accent-gold font-medium px-2 py-0.5 bg-accent-gold/10 rounded-full">
-                Solved
-              </span>
-            )}
           </div>
           <p className="text-sm text-text-secondary font-body mb-3">
             #{puzzleNumber} · {wordLength} letters
@@ -96,11 +91,6 @@ export default function HomePage() {
               {getStreakEmoji(streak)} {streak} day streak
             </p>
           )}
-          {completed && (
-            <p className="text-xs text-text-secondary font-body mb-3">
-              Next puzzle in {countdown}
-            </p>
-          )}
           <div
             className="
               w-full py-2.5
@@ -108,7 +98,7 @@ export default function HomePage() {
               rounded-[var(--radius-lg)]
             "
           >
-            {completed ? "VIEW RESULT" : "PLAY"}
+            PLAY
           </div>
         </Link>
 
@@ -148,29 +138,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Practice card */}
-        <Link
-          href="/practice"
-          className="
-            block p-4
-            bg-bg-surface rounded-[var(--radius-md)]
-            border border-border
-            hover:border-accent-gold
-            transition-colors duration-200
-          "
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-display text-base text-text-primary">
-                Practice
-              </h3>
-              <p className="text-xs text-text-secondary font-body">
-                No pressure. Unlimited puzzles.
-              </p>
-            </div>
-            <span className="text-text-secondary text-lg">›</span>
-          </div>
-        </Link>
+        {/* Practice card — hidden during playtest */}
       </main>
 
       <BottomNav />
