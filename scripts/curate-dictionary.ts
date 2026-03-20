@@ -1,13 +1,17 @@
 /**
  * Dictionary Curation Script
  *
- * Uses the ENABLE word list (public domain Scrabble dictionary) as the
- * base, then outputs two tiers per word length:
+ * Merges two word list sources for maximum coverage:
+ *   1. SCOWL en_US-large (spell-checker dictionary, ~168K words, modern, maintained)
+ *   2. ENABLE (Scrabble dictionary, ~173K words, game-grade, public domain)
+ *
+ * The merge gives us the broadest possible set of real English words:
+ * SCOWL adds modern words (email, emoji, blog, wifi, selfie, podcast)
+ * ENABLE adds valid game words that spell-checkers might miss
+ *
+ * Outputs two tiers per word length:
  *   - words-{N}.json — all valid words (for player input validation)
  *   - common-{N}.json — common everyday words (for puzzle generation)
- *
- * The common words lists are hardcoded to ensure puzzle quality.
- * Every word on a puzzle's optimal path must be "common".
  *
  * Usage: npm run generate:dictionary
  */
@@ -15,8 +19,12 @@
 import { writeFileSync, mkdirSync, existsSync } from "fs";
 import { join } from "path";
 
-// ENABLE word list — public domain, standard Scrabble dictionary (~173K words)
-const WORD_LIST_URL =
+// SCOWL en_US-large — actively maintained spell-checker dictionary (includes modern words)
+const SCOWL_URL =
+  "https://raw.githubusercontent.com/en-wl/wordlist-diff/rel-2026.02.25/en_US-large.txt";
+
+// ENABLE — public domain Scrabble dictionary (game-grade word list)
+const ENABLE_URL =
   "https://raw.githubusercontent.com/dolph/dictionary/master/enable1.txt";
 
 const OUT_DIR = join(process.cwd(), "public", "data");
@@ -324,20 +332,34 @@ const COMMON_WORDS: Record<number, Set<string>> = {
   5: COMMON_5,
 };
 
-async function main() {
-  console.log("Fetching ENABLE word list...");
-  const response = await fetch(WORD_LIST_URL);
+async function fetchWordList(url: string, name: string): Promise<string[]> {
+  console.log(`Fetching ${name}...`);
+  const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`Failed to fetch word list: ${response.status}`);
+    throw new Error(`Failed to fetch ${name}: ${response.status}`);
   }
-
   const text = await response.text();
-  const allWords = text
+  return text
     .split(/\r?\n/)
     .map((w) => w.trim().toLowerCase())
     .filter((w) => w.length > 0);
+}
 
-  console.log(`Fetched ${allWords.length} total words`);
+async function main() {
+  // Fetch both word lists
+  const [scowlWords, enableWords] = await Promise.all([
+    fetchWordList(SCOWL_URL, "SCOWL en_US-large"),
+    fetchWordList(ENABLE_URL, "ENABLE"),
+  ]);
+
+  console.log(`  SCOWL: ${scowlWords.length} entries`);
+  console.log(`  ENABLE: ${enableWords.length} entries`);
+
+  // Merge both lists into a single set (deduplication automatic)
+  const mergedSet = new Set<string>();
+  for (const w of scowlWords) mergedSet.add(w);
+  for (const w of enableWords) mergedSet.add(w);
+  console.log(`  Merged: ${mergedSet.size} unique entries`);
 
   // Ensure output directory exists
   if (!existsSync(OUT_DIR)) {
@@ -346,8 +368,9 @@ async function main() {
 
   // Filter and output by word length
   for (const len of [3, 4, 5, 6]) {
-    const words = allWords.filter((w) => {
+    const words = [...mergedSet].filter((w) => {
       if (w.length !== len) return false;
+      // Only pure lowercase alphabetic (no hyphens, apostrophes, accents, capitals)
       if (!/^[a-z]+$/.test(w)) return false;
       if (BLOCKLIST.has(w)) return false;
       return true;
@@ -362,7 +385,6 @@ async function main() {
     // Write common words list (for puzzle generation)
     const commonSet = COMMON_WORDS[len];
     if (commonSet) {
-      // Filter common words to only those that exist in the ENABLE dictionary
       const commonWords = [...commonSet].filter((w) => words.includes(w)).sort();
       const commonPath = join(OUT_DIR, `common-${len}.json`);
       writeFileSync(commonPath, JSON.stringify(commonWords));
