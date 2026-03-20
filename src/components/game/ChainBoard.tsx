@@ -99,27 +99,6 @@ export function ChainBoard() {
         />
       </div>
 
-      {/* Toast messages */}
-      {notAWord && (
-        <div className="flex justify-center py-1.5 shrink-0 animate-slide-up">
-          <div className="px-4 py-2 bg-bg-surface border border-accent-error/30 rounded-[var(--radius-md)] shadow-[var(--shadow)]">
-            <p className="text-sm text-accent-error font-body font-medium text-center">
-              Not a word
-            </p>
-          </div>
-        </div>
-      )}
-      {unchainableWord && (
-        <div className="flex justify-center py-1.5 shrink-0 animate-slide-up">
-          <div className="px-3 py-1.5 bg-bg-surface border border-border rounded-[var(--radius-md)] shadow-[var(--shadow)]">
-            <p className="text-xs text-text-secondary font-body text-center">
-              <span className="font-medium text-text-primary uppercase">{unchainableWord}</span>
-              {" "}is a real word but can&apos;t form chains
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* Gap dots — showing distance to fill (only when playing) */}
       {showActiveRung && (
         <div className="flex justify-center py-1 shrink-0">
@@ -136,6 +115,27 @@ export function ChainBoard() {
         ref={scrollRef}
         className="flex-1 flex flex-col justify-end overflow-y-auto min-h-0 scroll-smooth-chain"
       >
+        {/* Toast messages — float above the active rung */}
+        {notAWord && (
+          <div className="flex justify-center py-1.5 animate-slide-up">
+            <div className="px-4 py-1.5 bg-bg-surface border border-accent-error/30 rounded-[var(--radius-md)] shadow-[var(--shadow)]">
+              <p className="text-sm text-accent-error font-body font-medium text-center">
+                Not a word
+              </p>
+            </div>
+          </div>
+        )}
+        {unchainableWord && (
+          <div className="flex justify-center py-1.5 animate-slide-up">
+            <div className="px-3 py-1.5 bg-bg-surface border border-border rounded-[var(--radius-md)] shadow-[var(--shadow)]">
+              <p className="text-xs text-text-secondary font-body text-center">
+                <span className="font-medium text-text-primary uppercase">{unchainableWord}</span>
+                {" "}is a real word but can&apos;t form chains
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Active rung — current input */}
         {showActiveRung && (
           <div className="flex justify-center py-1.5">
