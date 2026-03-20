@@ -1,12 +1,12 @@
 /**
  * ChainBoard — The main game area showing the chain from start to target.
  *
- * Layout (bottom to top):
- *   Start word (anchored at bottom)
- *   Locked rungs (stacking upward with chain connectors)
- *   Active rung (current input)
- *   Gap dots (showing distance to target)
+ * Layout (top to bottom):
  *   Target word (anchored at top)
+ *   Gap dots (showing distance to fill)
+ *   Spacer (pushes chain to bottom)
+ *   Active rung (current input)
+ *   Locked rungs (most recent first, start word at bottom)
  */
 
 "use client";
@@ -31,10 +31,11 @@ export function ChainBoard() {
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to keep active rung visible
+  // Auto-scroll to keep active rung visible when chain grows
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      // Scroll to top to show the active rung (newest content is at top)
+      scrollRef.current.scrollTop = 0;
     }
   }, [chain.length]);
 
@@ -59,9 +60,9 @@ export function ChainBoard() {
   const showActiveRung = !isComplete && lastLockedWord !== targetWord;
 
   return (
-    <div className="flex flex-col flex-1 px-4 py-2">
+    <div className="flex flex-col flex-1 px-4 py-2 overflow-hidden">
       {/* Target word — always at top */}
-      <div className="flex justify-center py-2">
+      <div className="flex justify-center py-2 shrink-0">
         <ChainRung
           word={targetWord}
           isLocked={false}
@@ -75,8 +76,8 @@ export function ChainBoard() {
 
       {/* Gap dots — showing distance to fill */}
       {showActiveRung && (
-        <div className="flex justify-center py-2">
-          <div className="flex flex-col items-center gap-1.5">
+        <div className="flex justify-center py-1 shrink-0">
+          <div className="flex flex-col items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-text-secondary opacity-30" />
             <span className="w-1.5 h-1.5 rounded-full bg-text-secondary opacity-30" />
             <span className="w-1.5 h-1.5 rounded-full bg-text-secondary opacity-30" />
@@ -84,14 +85,17 @@ export function ChainBoard() {
         </div>
       )}
 
-      {/* Scrollable chain area */}
+      {/* Spacer — pushes chain content to bottom of the area */}
+      <div className="flex-1 min-h-0" />
+
+      {/* Scrollable chain area — grows upward from bottom */}
       <div
         ref={scrollRef}
-        className="flex-1 flex flex-col-reverse justify-start gap-0 overflow-y-auto"
+        className="flex flex-col shrink-0 max-h-[50vh] overflow-y-auto"
       >
-        {/* Active rung — current input (shown above locked chain) */}
+        {/* Active rung — current input */}
         {showActiveRung && (
-          <div className="flex justify-center py-2">
+          <div className="flex justify-center py-1.5">
             <ChainRung
               word={activeWord}
               previousWord={lastLockedWord}
@@ -106,24 +110,27 @@ export function ChainBoard() {
           </div>
         )}
 
-        {/* Locked rungs — stacked from bottom (most recent at top) */}
+        {/* Locked rungs — most recent at top, start word at bottom */}
         {[...chain].reverse().map((word, reverseIdx) => {
           const idx = chain.length - 1 - reverseIdx;
           const isStart = idx === 0;
           const prevWord = idx > 0 ? chain[idx - 1] : undefined;
           const isLatestLock = idx === chain.length - 1 && idx > 0;
 
+          // Show chain connector between locked rungs only.
+          // The connector between active rung and the latest locked word
+          // appears only after the first word is locked in (chain > 1).
+          const showConnector =
+            reverseIdx > 0 || (reverseIdx === 0 && showActiveRung && chain.length > 1);
+
           return (
             <div key={`${idx}-${word}`}>
-              {/* Chain connector between locked rungs */}
-              {idx < chain.length - 1 && (
+              {showConnector && (
                 <div className="flex justify-center py-0.5">
-                  <div className="flex flex-col items-center">
-                    <span className="text-accent-gold text-xs">⛓️</span>
-                  </div>
+                  <span className="text-accent-gold text-xs">⛓️</span>
                 </div>
               )}
-              <div className="flex justify-center py-1">
+              <div className="flex justify-center py-0.5">
                 <ChainRung
                   word={word}
                   previousWord={prevWord}

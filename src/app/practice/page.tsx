@@ -73,6 +73,9 @@ export default function PracticePage() {
         useGameStore.getState().inputLetter(key);
       } else if (key === "backspace") {
         e.preventDefault();
+        useGameStore.getState().selectPosition(null);
+      } else if (e.ctrlKey && key === "z") {
+        e.preventDefault();
         useGameStore.getState().undoStep();
       }
     };

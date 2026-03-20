@@ -116,6 +116,10 @@ export default function PlayPage() {
         useGameStore.getState().inputLetter(key);
       } else if (key === "backspace") {
         e.preventDefault();
+        // Backspace deselects the current position
+        useGameStore.getState().selectPosition(null);
+      } else if (e.ctrlKey && key === "z") {
+        e.preventDefault();
         useGameStore.getState().undoStep();
       }
     };

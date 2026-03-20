@@ -45,7 +45,12 @@ export const viewport: Viewport = {
  * Theme initialization script — runs before React hydration to avoid flash.
  * Sets .dark class on <html> based on localStorage or system preference.
  */
-const themeScript = `
+/**
+ * Inline script that runs before hydration:
+ * 1. Sets dark/light theme from localStorage (no flash)
+ * 2. Registers service worker for PWA
+ */
+const initScript = `
 (function() {
   try {
     var theme = localStorage.getItem('shft-theme');
@@ -55,6 +60,11 @@ const themeScript = `
       document.documentElement.classList.remove('dark');
     }
   } catch(e) {}
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/sw.js');
+    });
+  }
 })();
 `;
 
@@ -66,10 +76,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`dark ${instrumentSerif.variable} ${jetbrainsMono.variable} ${dmSans.variable}`}
+      className={`${instrumentSerif.variable} ${jetbrainsMono.variable} ${dmSans.variable}`}
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script dangerouslySetInnerHTML={{ __html: initScript }} />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
       </head>
       <body className="bg-bg-primary text-text-primary font-body min-h-dvh">

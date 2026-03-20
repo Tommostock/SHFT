@@ -42,7 +42,7 @@ interface GameState {
   // Actions
   loadPuzzle: (puzzle: DailyPuzzle) => void;
   loadCustomPuzzle: (start: string, target: string, par: number) => void;
-  selectPosition: (pos: number) => void;
+  selectPosition: (pos: number | null) => void;
   inputLetter: (letter: string) => void;
   undoStep: () => void;
   resetGame: () => void;
@@ -117,12 +117,17 @@ export const useGameStore = create<GameState>((set, get) => ({
   /**
    * Select a letter position in the active word.
    */
-  selectPosition: (pos: number) => {
+  selectPosition: (pos: number | null) => {
     const { status, wordLength, chain } = get();
     if (status !== "playing") return;
-    if (pos < 0 || pos >= wordLength) return;
-    // Reset active word to the last locked word when selecting a new position
     const lastLockedWord = chain[chain.length - 1];
+    // Allow null to deselect
+    if (pos === null || pos < 0) {
+      set({ selectedPosition: null, activeWord: lastLockedWord });
+      return;
+    }
+    if (pos >= wordLength) return;
+    // Reset active word to the last locked word when selecting a new position
     set({ selectedPosition: pos, activeWord: lastLockedWord });
   },
 

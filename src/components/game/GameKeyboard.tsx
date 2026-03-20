@@ -33,9 +33,8 @@ export function GameKeyboard() {
       }
 
       if (key === "back") {
-        // Reset the active word's selected position letter back to the locked word's letter
-        // For now, just deselect
-        selectPosition(-1);
+        // Deselect the current position
+        selectPosition(null);
         return;
       }
 
@@ -58,12 +57,12 @@ export function GameKeyboard() {
 
   return (
     <div
-      className="px-1 pb-2 pt-1"
+      className="px-1.5 pb-3 pt-1.5"
       role="group"
       aria-label="Game keyboard"
     >
       {ROWS.map((row, rowIdx) => (
-        <div key={rowIdx} className="flex justify-center gap-[3px] mb-[3px]">
+        <div key={rowIdx} className="flex justify-center gap-[4px] mb-[4px]">
           {row.map((key) => {
             const isSpecial = key === "undo" || key === "back";
             const isPressed = pressedKey === key;
@@ -82,15 +81,16 @@ export function GameKeyboard() {
                       : key.toUpperCase()
                 }
                 className={`
-                  ${isSpecial ? "px-3 min-w-[42px]" : "min-w-[30px] sm:min-w-[34px]"}
-                  h-11 sm:h-12
+                  ${isSpecial ? "flex-[1.5] min-w-[36px]" : "flex-1 min-w-[28px]"}
+                  h-12
                   flex items-center justify-center
                   rounded-[var(--radius-sm)]
                   font-body text-sm font-medium uppercase
+                  select-none
                   transition-all duration-100
                   ${isPressed
                     ? "bg-text-primary text-bg-primary scale-95"
-                    : "bg-bg-elevated text-text-primary hover:bg-border"
+                    : "bg-bg-elevated text-text-primary active:bg-border"
                   }
                   disabled:opacity-40
                 `}
