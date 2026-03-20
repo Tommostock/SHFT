@@ -7,6 +7,7 @@
 
 import { useEffect, useState } from "react";
 import { getTheme, setTheme } from "@/lib/stores/guestStore";
+import { Sun, Moon } from "lucide-react";
 
 export function ThemeToggle() {
   const [isDark, setIsDark] = useState(true);
@@ -42,7 +43,7 @@ export function ThemeToggle() {
         transition-colors duration-150
       "
     >
-      {isDark ? "☀️" : "🌙"}
+      {isDark ? <Sun size={18} /> : <Moon size={18} />}
     </button>
   );
 }

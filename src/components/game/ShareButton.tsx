@@ -6,6 +6,7 @@
 
 import { useState } from "react";
 import { shareResult } from "@/lib/game/sharer";
+import { Share2, Check } from "lucide-react";
 
 interface ShareButtonProps {
   shareText: string;
@@ -35,7 +36,9 @@ export function ShareButton({ shareText }: ShareButtonProps) {
       "
       aria-label="Share result"
     >
-      {copied ? "Copied!" : "📤 SHARE"}
+      <span className="flex items-center justify-center gap-2">
+        {copied ? <><Check size={16} /> Copied!</> : <><Share2 size={16} /> SHARE</>}
+      </span>
     </button>
   );
 }

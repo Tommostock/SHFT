@@ -7,11 +7,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Home, BarChart3, User } from "lucide-react";
 
 const TABS = [
-  { href: "/", label: "Home", icon: "🏠" },
-  { href: "/leaderboard", label: "Leaderboard", icon: "📊" },
-  { href: "/profile", label: "Profile", icon: "👤" },
+  { href: "/", label: "Home", Icon: Home },
+  { href: "/leaderboard", label: "Leaderboard", Icon: BarChart3 },
+  { href: "/profile", label: "Profile", Icon: User },
 ] as const;
 
 export function BottomNav() {
@@ -34,7 +35,7 @@ export function BottomNav() {
               aria-label={tab.label}
               aria-current={isActive ? "page" : undefined}
             >
-              <span className="text-lg">{tab.icon}</span>
+              <tab.Icon size={20} />
               <span className="text-[10px] font-body font-medium">
                 {tab.label}
               </span>

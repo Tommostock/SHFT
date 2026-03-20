@@ -12,12 +12,13 @@ import { BottomNav } from "@/components/layout/BottomNav";
 import { getTodayUTC, getPuzzleNumber, getDayOfWeek } from "@/lib/utils/dates";
 import { DAY_WORD_LENGTH } from "@/lib/utils/constants";
 import { getCurrentStreak, isTodayCompleted, loadGuestData } from "@/lib/stores/guestStore";
+import { Flame, Timer, Swords, Trophy, ArrowRightLeft, CheckCircle, BookOpen } from "lucide-react";
 
-/** Get streak fire emoji based on streak length */
-function getStreakEmoji(streak: number): string {
-  if (streak >= 100) return "🔥🔥🔥";
-  if (streak >= 30) return "🔥🔥";
-  return "🔥";
+/** Get number of flame icons based on streak length */
+function getStreakFlames(streak: number): number {
+  if (streak >= 100) return 3;
+  if (streak >= 30) return 2;
+  return 1;
 }
 
 /** Get time remaining until next UTC midnight */
@@ -87,9 +88,12 @@ export default function HomePage() {
             #{puzzleNumber} · {wordLength} letters
           </p>
           {streak > 0 && (
-            <p className="text-sm text-text-secondary font-body mb-3">
-              {getStreakEmoji(streak)} {streak} day streak
-            </p>
+            <div className="flex items-center gap-1.5 text-sm text-text-secondary font-body mb-3">
+              {Array.from({ length: getStreakFlames(streak) }).map((_, i) => (
+                <Flame key={i} size={14} className="text-accent-gold fill-accent-gold" />
+              ))}
+              <span>{streak} day streak</span>
+            </div>
           )}
           <div
             className="
@@ -115,7 +119,7 @@ export default function HomePage() {
             <h3 className="font-display text-base text-text-primary mb-1">
               Sprint
             </h3>
-            <p className="text-xs text-text-secondary font-body">🏆 3-min challenge</p>
+            <div className="flex items-center gap-1.5 text-xs text-text-secondary font-body"><Timer size={12} /> 3-min challenge</div>
             <p className="text-[10px] text-text-secondary font-body mt-2 uppercase tracking-wide">
               Coming Soon
             </p>
@@ -131,7 +135,7 @@ export default function HomePage() {
             <h3 className="font-display text-base text-text-primary mb-1">
               Versus
             </h3>
-            <p className="text-xs text-text-secondary font-body">⚔️ 1v1 matches</p>
+            <div className="flex items-center gap-1.5 text-xs text-text-secondary font-body"><Swords size={12} /> 1v1 matches</div>
             <p className="text-[10px] text-text-secondary font-body mt-2 uppercase tracking-wide">
               Coming Soon
             </p>
@@ -150,33 +154,37 @@ export default function HomePage() {
           onClick={() => setShowTutorial(false)}
         >
           <div
-            className="bg-bg-surface rounded-[var(--radius-md)] shadow-lg w-[90%] max-w-[360px] p-6 animate-slide-up"
+            className="bg-bg-surface rounded-[var(--radius-md)] shadow-lg w-[90%] max-w-[340px] p-5 animate-slide-up"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="font-display text-xl text-text-primary text-center mb-4">
+            <h2 className="font-display text-xl text-text-primary text-center mb-5">
               How to Play
             </h2>
 
-            <div className="space-y-4 text-sm text-text-secondary font-body">
-              <div className="flex gap-3">
-                <span className="text-lg shrink-0">1️⃣</span>
+            <div className="space-y-5 text-sm text-text-secondary font-body">
+              <div className="flex items-start gap-3">
+                <div className="w-7 h-7 rounded-full bg-bg-elevated flex items-center justify-center shrink-0 mt-0.5">
+                  <ArrowRightLeft size={14} className="text-text-primary" />
+                </div>
                 <p>Change <span className="text-text-primary font-medium">one letter</span> at a time to transform the start word into the target word.</p>
               </div>
-              <div className="flex gap-3">
-                <span className="text-lg shrink-0">2️⃣</span>
+              <div className="flex items-start gap-3">
+                <div className="w-7 h-7 rounded-full bg-bg-elevated flex items-center justify-center shrink-0 mt-0.5">
+                  <BookOpen size={14} className="text-text-primary" />
+                </div>
                 <p>Every step must be a <span className="text-text-primary font-medium">real English word</span>.</p>
               </div>
-              <div className="flex gap-3">
-                <span className="text-lg shrink-0">3️⃣</span>
-                <p>Try to reach the target in as <span className="text-text-primary font-medium">few steps as possible</span>. Par is the shortest path.</p>
-              </div>
-              <div className="flex gap-3">
-                <span className="text-lg shrink-0">🟩</span>
+              <div className="flex items-start gap-3">
+                <div className="w-7 h-7 rounded-full bg-bg-elevated flex items-center justify-center shrink-0 mt-0.5">
+                  <CheckCircle size={14} className="text-accent-green" />
+                </div>
                 <p><span className="text-accent-green font-medium">Green</span> letters are in the correct position.</p>
               </div>
-              <div className="flex gap-3">
-                <span className="text-lg shrink-0">🏆</span>
-                <p>Match or beat par for a <span className="text-accent-gold font-medium">Gold Chain</span>!</p>
+              <div className="flex items-start gap-3">
+                <div className="w-7 h-7 rounded-full bg-bg-elevated flex items-center justify-center shrink-0 mt-0.5">
+                  <Trophy size={14} className="text-accent-gold" />
+                </div>
+                <p>Reach the target in as few steps as possible. Match par for a <span className="text-accent-gold font-medium">Gold Chain</span>.</p>
               </div>
             </div>
 
@@ -184,7 +192,7 @@ export default function HomePage() {
               type="button"
               onClick={() => setShowTutorial(false)}
               className="
-                w-full mt-6 py-2.5
+                w-full mt-5 py-2.5
                 bg-accent-gold text-[#1A1A1A] font-body font-bold text-sm
                 rounded-[var(--radius-lg)]
                 hover:opacity-90

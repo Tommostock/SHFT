@@ -9,6 +9,7 @@ import type { ScoreResult } from "@/types";
 import { generateShareText } from "@/lib/game/sharer";
 import { formatTime } from "@/lib/utils/dates";
 import { ShareButton } from "./ShareButton";
+import { Star, Flame, Link } from "lucide-react";
 
 interface ResultModalProps {
   score: ScoreResult;
@@ -27,11 +28,11 @@ const QUALITY_LABELS = {
   iron: "Iron Chain",
 } as const;
 
-const QUALITY_EMOJI = {
-  gold: "🔗",
-  silver: "⛓️",
-  bronze: "⛓️",
-  iron: "⛓️",
+const QUALITY_COLOR = {
+  gold: "text-accent-gold",
+  silver: "text-accent-silver",
+  bronze: "text-accent-silver",
+  iron: "text-text-secondary",
 } as const;
 
 export function ResultModal({
@@ -50,9 +51,7 @@ export function ResultModal({
     score.chainQuality
   );
 
-  const chainEmojis = Array(score.steps)
-    .fill(QUALITY_EMOJI[score.chainQuality])
-    .join("");
+  const chainColor = QUALITY_COLOR[score.chainQuality];
 
   return (
     <div
@@ -73,7 +72,9 @@ export function ResultModal({
         {/* Title */}
         <div className="text-center mb-4">
           {score.isGenius ? (
-            <div className="text-3xl animate-star-burst mb-1">⭐</div>
+            <div className="animate-star-burst mb-1">
+              <Star size={32} className="text-accent-gold fill-accent-gold mx-auto" />
+            </div>
           ) : null}
           <h2 className="font-display text-2xl text-text-primary">
             {score.isGenius ? "GENIUS!" : "COMPLETE!"}
@@ -102,7 +103,11 @@ export function ResultModal({
 
         {/* Chain quality */}
         <div className="text-center mb-6">
-          <p className="text-xl mb-1">{chainEmojis}</p>
+          <div className="flex justify-center gap-1 mb-1">
+            {Array.from({ length: score.steps }).map((_, i) => (
+              <Link key={i} size={16} className={chainColor} />
+            ))}
+          </div>
           <p
             className={`font-body font-medium text-sm ${
               score.chainQuality === "gold"
@@ -123,9 +128,10 @@ export function ResultModal({
 
         {/* Streak */}
         {!isPractice && streak > 0 && (
-          <p className="text-center text-sm text-text-secondary font-body animate-count-up">
-            🔥 Streak: {streak} day{streak !== 1 ? "s" : ""}
-          </p>
+          <div className="flex items-center justify-center gap-1.5 text-sm text-text-secondary font-body animate-count-up">
+            <Flame size={14} className="text-accent-gold fill-accent-gold" />
+            <span>Streak: {streak} day{streak !== 1 ? "s" : ""}</span>
+          </div>
         )}
 
         {/* Close / play again for practice */}
