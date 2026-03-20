@@ -9,7 +9,6 @@
 "use client";
 
 import { LetterSlot } from "./LetterSlot";
-import { WordDefinition } from "./WordDefinition";
 
 interface ChainRungProps {
   word: string;
@@ -84,10 +83,6 @@ export function ChainRung({
           onSelect={onSelectPosition}
         />
       ))}
-      {/* Definition button — shown on locked rungs and start/target words */}
-      {(isLocked || isStart || isTarget) && (
-        <WordDefinition word={word} />
-      )}
     </div>
   );
 }
