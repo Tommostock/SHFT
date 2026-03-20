@@ -332,23 +332,33 @@ const COMMON_WORDS: Record<number, Set<string>> = {
   5: COMMON_5,
 };
 
-async function fetchWordList(url: string, name: string): Promise<string[]> {
+async function fetchWordList(
+  url: string,
+  name: string,
+  lowercaseOnly: boolean = false
+): Promise<string[]> {
   console.log(`Fetching ${name}...`);
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`Failed to fetch ${name}: ${response.status}`);
   }
   const text = await response.text();
-  return text
-    .split(/\r?\n/)
-    .map((w) => w.trim().toLowerCase())
-    .filter((w) => w.length > 0);
+  const lines = text.split(/\r?\n/).map((w) => w.trim()).filter((w) => w.length > 0);
+
+  if (lowercaseOnly) {
+    // Only keep words that are already fully lowercase in the source.
+    // This filters out proper nouns (Dana, Paris), abbreviations (BBC, DIY),
+    // and possessives (dog's) from spell-checker dictionaries like SCOWL.
+    return lines.filter((w) => /^[a-z]+$/.test(w));
+  }
+
+  return lines.map((w) => w.toLowerCase());
 }
 
 async function main() {
   // Fetch both word lists
   const [scowlWords, enableWords] = await Promise.all([
-    fetchWordList(SCOWL_URL, "SCOWL en_US-large"),
+    fetchWordList(SCOWL_URL, "SCOWL en_US-large", true), // lowercase only — filters out proper nouns & abbreviations
     fetchWordList(ENABLE_URL, "ENABLE"),
   ]);
 
@@ -372,6 +382,8 @@ async function main() {
       if (w.length !== len) return false;
       // Only pure lowercase alphabetic (no hyphens, apostrophes, accents, capitals)
       if (!/^[a-z]+$/.test(w)) return false;
+      // Must contain at least one vowel — filters out abbreviations (bbc, diy, bldg, blvd, etc.)
+      if (!/[aeiouy]/.test(w)) return false;
       if (BLOCKLIST.has(w)) return false;
       return true;
     });
