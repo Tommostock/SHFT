@@ -1,7 +1,6 @@
 /**
  * GameKeyboard — Custom QWERTY keyboard for the SHFT game.
- * Compact layout with an Undo button to revert the last locked step.
- * Uses the game's custom styling, not the device keyboard.
+ * Layout matches standard iPhone keyboard with UNDO/REDO flanking the bottom row.
  */
 
 "use client";
@@ -12,13 +11,16 @@ import { useCallback, useState } from "react";
 const ROWS = [
   ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
   ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
-  ["undo", "z", "x", "c", "v", "b", "n", "m"],
+  ["undo", "z", "x", "c", "v", "b", "n", "m", "redo"],
 ];
 
 export function GameKeyboard() {
-  const { inputLetter, undoStep, status, selectedPosition, selectPosition, activeWord, wordLength } =
+  const { inputLetter, undoStep, redoStep, status, selectedPosition, selectPosition, chain, redoStack } =
     useGameStore();
   const [pressedKey, setPressedKey] = useState<string | null>(null);
+
+  const canUndo = chain.length > 1;
+  const canRedo = redoStack.length > 0;
 
   const handleKey = useCallback(
     (key: string) => {
@@ -32,21 +34,21 @@ export function GameKeyboard() {
         return;
       }
 
-      // If no position selected, auto-select the first position that differs
-      // from the start, or position 0
+      if (key === "redo") {
+        redoStep();
+        return;
+      }
+
+      // If no position selected, auto-select position 0
       if (selectedPosition === null) {
         selectPosition(0);
-        // Small delay then input the letter
         setTimeout(() => inputLetter(key), 10);
         return;
       }
 
       inputLetter(key);
-
-      // Auto-advance to next position if the current one was just filled
-      // and the word isn't complete yet
     },
-    [status, inputLetter, undoStep, selectedPosition, selectPosition]
+    [status, inputLetter, undoStep, redoStep, selectedPosition, selectPosition]
   );
 
   return (
@@ -59,31 +61,43 @@ export function GameKeyboard() {
         <div key={rowIdx} className="flex justify-center gap-[4px] mb-[4px]">
           {row.map((key) => {
             const isUndo = key === "undo";
+            const isRedo = key === "redo";
+            const isSpecial = isUndo || isRedo;
             const isPressed = pressedKey === key;
+            const isDisabled =
+              status !== "playing" ||
+              (isUndo && !canUndo) ||
+              (isRedo && !canRedo);
 
             return (
               <button
                 key={key}
                 type="button"
                 onClick={() => handleKey(key)}
-                disabled={status !== "playing"}
-                aria-label={isUndo ? "Undo last step" : key.toUpperCase()}
+                disabled={isDisabled}
+                aria-label={
+                  isUndo
+                    ? "Undo last step"
+                    : isRedo
+                      ? "Redo step"
+                      : key.toUpperCase()
+                }
                 className={`
-                  ${isUndo ? "flex-[1.8] min-w-[48px]" : "flex-1 min-w-[28px]"}
+                  ${isSpecial ? "flex-[1.5] min-w-[40px]" : "flex-1 min-w-[28px]"}
                   h-12
                   flex items-center justify-center
                   rounded-[var(--radius-sm)]
-                  font-body ${isUndo ? "text-xs" : "text-sm"} font-medium uppercase
+                  font-body ${isSpecial ? "text-[10px] tracking-wide" : "text-sm"} font-medium uppercase
                   select-none
                   transition-all duration-100
                   ${isPressed
                     ? "bg-text-primary text-bg-primary scale-95"
                     : "bg-bg-elevated text-text-primary active:bg-border"
                   }
-                  disabled:opacity-40
+                  disabled:opacity-30
                 `}
               >
-                {isUndo ? "UNDO" : key.toUpperCase()}
+                {isUndo ? "UNDO" : isRedo ? "REDO" : key.toUpperCase()}
               </button>
             );
           })}

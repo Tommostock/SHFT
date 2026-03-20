@@ -25,6 +25,7 @@ interface GameState {
   chain: string[]; // Locked words (starts with startWord)
   activeWord: string; // Current word being edited (initially same as last chain word)
   selectedPosition: number | null; // Which letter position is selected (0-indexed)
+  redoStack: string[]; // Words removed by undo, available for redo
 
   // Game status
   status: GameStatus;
@@ -49,6 +50,7 @@ interface GameState {
   selectPosition: (pos: number | null) => void;
   inputLetter: (letter: string) => void;
   undoStep: () => void;
+  redoStep: () => void;
   resetGame: () => void;
   clearShake: () => void;
   clearLockIn: () => void;
@@ -69,6 +71,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   score: null,
   startTime: null,
   endTime: null,
+  redoStack: [],
   shakeActive: false,
   lockInAnimation: false,
   completeAnimation: false,
@@ -94,6 +97,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       shakeActive: false,
       lockInAnimation: false,
       completeAnimation: false,
+      redoStack: [],
     });
   },
 
@@ -117,6 +121,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       shakeActive: false,
       lockInAnimation: false,
       completeAnimation: false,
+      redoStack: [],
     });
   },
 
@@ -191,12 +196,13 @@ export const useGameStore = create<GameState>((set, get) => ({
         return;
       }
 
-      // Lock in the valid word
+      // Lock in the valid word — clears redo stack since history is now invalid
       set({
         chain: [...state.chain, newWord],
         activeWord: newWord,
         selectedPosition: null,
         lockInAnimation: true,
+        redoStack: [],
       });
     } else if (newWord !== lastLockedWord) {
       const diffCount = countDiff(lastLockedWord, newWord);
@@ -213,13 +219,14 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   /**
-   * Undo the last locked step.
+   * Undo the last locked step. Pushes the removed word onto the redo stack.
    */
   undoStep: () => {
-    const { chain, status, startWord } = get();
+    const { chain, status, redoStack } = get();
     if (status !== "playing") return;
     if (chain.length <= 1) return; // Can't undo the start word
 
+    const removedWord = chain[chain.length - 1];
     const newChain = chain.slice(0, -1);
     const lastWord = newChain[newChain.length - 1];
 
@@ -227,6 +234,26 @@ export const useGameStore = create<GameState>((set, get) => ({
       chain: newChain,
       activeWord: lastWord,
       selectedPosition: null,
+      redoStack: [...redoStack, removedWord],
+    });
+  },
+
+  /**
+   * Redo a previously undone step. Pops from the redo stack back onto the chain.
+   */
+  redoStep: () => {
+    const { chain, status, redoStack } = get();
+    if (status !== "playing") return;
+    if (redoStack.length === 0) return; // Nothing to redo
+
+    const wordToRedo = redoStack[redoStack.length - 1];
+    const newRedoStack = redoStack.slice(0, -1);
+
+    set({
+      chain: [...chain, wordToRedo],
+      activeWord: wordToRedo,
+      selectedPosition: null,
+      redoStack: newRedoStack,
     });
   },
 
@@ -248,6 +275,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       shakeActive: false,
       lockInAnimation: false,
       completeAnimation: false,
+      redoStack: [],
     });
   },
 
