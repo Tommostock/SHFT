@@ -40,9 +40,9 @@ interface GameState {
   lockInAnimation: boolean;
   completeAnimation: boolean;
 
-  // Unchainable word feedback — shown when player types a real word
-  // that can't participate in word chains (e.g., "iron", "pizza")
-  unchainableWord: string | null;
+  // Feedback messages
+  unchainableWord: string | null; // Real word that can't form chains
+  notAWord: boolean; // "Not a word" popup
 
   // Actions
   loadPuzzle: (puzzle: DailyPuzzle) => void;
@@ -55,6 +55,7 @@ interface GameState {
   clearShake: () => void;
   clearLockIn: () => void;
   clearUnchainable: () => void;
+  clearNotAWord: () => void;
 }
 
 export const useGameStore = create<GameState>((set, get) => ({
@@ -76,6 +77,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   lockInAnimation: false,
   completeAnimation: false,
   unchainableWord: null,
+  notAWord: false,
 
   /**
    * Load a daily puzzle into the store.
@@ -164,16 +166,14 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     // Start timer on first input
     const startTime = state.startTime ?? Date.now();
-
-    // Update the active word immediately
-    set({ activeWord: newWord, startTime });
+    set({ startTime });
 
     // If the new word is the same as the last locked word, do nothing more
     if (newWord === lastLockedWord) return;
 
     // Check if it's a valid step from the last locked word
     if (isValidStep(lastLockedWord, newWord)) {
-      // Trigger haptic feedback
+      // Valid word — update active word and lock it in
       triggerHaptic("valid");
 
       // Check if we've reached the target
@@ -205,13 +205,15 @@ export const useGameStore = create<GameState>((set, get) => ({
         redoStack: [],
       });
     } else if (newWord !== lastLockedWord) {
+      // Not a valid word — revert to last locked word and show feedback
       const diffCount = countDiff(lastLockedWord, newWord);
-      if (diffCount === 1 && !isWord(newWord)) {
-        // Check if this is a real word that just can't form chains
+      if (diffCount === 1) {
         if (isUnchainable(newWord)) {
-          set({ shakeActive: true, unchainableWord: newWord });
+          // Real word but can't form chains
+          set({ shakeActive: true, unchainableWord: newWord, activeWord: lastLockedWord, selectedPosition: null });
         } else {
-          set({ shakeActive: true });
+          // Not a word at all
+          set({ shakeActive: true, notAWord: true, activeWord: lastLockedWord, selectedPosition: null });
         }
         triggerHaptic("invalid");
       }
@@ -282,6 +284,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   clearShake: () => set({ shakeActive: false }),
   clearLockIn: () => set({ lockInAnimation: false }),
   clearUnchainable: () => set({ unchainableWord: null }),
+  clearNotAWord: () => set({ notAWord: false }),
 }));
 
 /** Count the number of differing characters between two same-length strings */

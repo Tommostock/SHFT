@@ -25,10 +25,12 @@ export function ChainBoard() {
     shakeActive,
     lockInAnimation,
     unchainableWord,
+    notAWord,
     selectPosition,
     clearShake,
     clearLockIn,
     clearUnchainable,
+    clearNotAWord,
   } = useGameStore();
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -64,6 +66,14 @@ export function ChainBoard() {
     }
   }, [unchainableWord, clearUnchainable]);
 
+  // Clear "Not a word" message after 1.5 seconds
+  useEffect(() => {
+    if (notAWord) {
+      const timer = setTimeout(clearNotAWord, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [notAWord, clearNotAWord]);
+
   const isComplete = status === "complete";
   const lastLockedWord = chain[chain.length - 1];
   const showActiveRung = !isComplete && lastLockedWord !== targetWord;
@@ -85,7 +95,16 @@ export function ChainBoard() {
         />
       </div>
 
-      {/* Toast message for unchainable words */}
+      {/* Toast messages */}
+      {notAWord && (
+        <div className="flex justify-center py-1.5 shrink-0 animate-slide-up">
+          <div className="px-4 py-2 bg-bg-surface border border-accent-error/30 rounded-[var(--radius-md)] shadow-[var(--shadow)]">
+            <p className="text-sm text-accent-error font-body font-medium text-center">
+              Not a word
+            </p>
+          </div>
+        </div>
+      )}
       {unchainableWord && (
         <div className="flex justify-center py-1.5 shrink-0 animate-slide-up">
           <div className="px-3 py-1.5 bg-bg-surface border border-border rounded-[var(--radius-md)] shadow-[var(--shadow)]">
