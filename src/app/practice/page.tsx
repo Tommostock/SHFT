@@ -69,15 +69,29 @@ export default function PracticePage() {
 
     const handleKeyDown = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
+      const state = useGameStore.getState();
       if (key.length === 1 && key >= "a" && key <= "z") {
         e.preventDefault();
-        useGameStore.getState().inputLetter(key);
+        state.inputLetter(key);
       } else if (key === "backspace") {
         e.preventDefault();
-        useGameStore.getState().selectPosition(null);
+        state.selectPosition(null);
       } else if (e.ctrlKey && key === "z") {
         e.preventDefault();
-        useGameStore.getState().undoStep();
+        state.undoStep();
+      } else if (e.ctrlKey && key === "y") {
+        e.preventDefault();
+        state.redoStep();
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        const pos = state.selectedPosition;
+        if (pos !== null && pos > 0) state.selectPosition(pos - 1);
+        else if (pos === null) state.selectPosition(state.wordLength - 1);
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        const pos = state.selectedPosition;
+        if (pos !== null && pos < state.wordLength - 1) state.selectPosition(pos + 1);
+        else if (pos === null) state.selectPosition(0);
       }
     };
 

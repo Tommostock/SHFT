@@ -19,6 +19,7 @@ interface LetterSlotProps {
   isStart: boolean;
   isTarget: boolean;
   isChanged: boolean;
+  isHighlightedChange?: boolean; // Tapped rung — show which letter changed
   matchesTarget: boolean;
   onSelect: (position: number) => void;
 }
@@ -31,6 +32,7 @@ export function LetterSlot({
   isStart,
   isTarget,
   isChanged,
+  isHighlightedChange = false,
   matchesTarget,
   onSelect,
 }: LetterSlotProps) {
@@ -55,10 +57,12 @@ export function LetterSlot({
     // Locked rung or start word in the chain
     if (isLocked || isStart) {
       if (matchesTarget) {
-        // Correct position — green fill + green border, white text
         return "border border-accent-green bg-accent-green/20 text-text-primary";
       }
-      // Default locked (including changed letters — no special styling)
+      // Highlighted changed letter (tapped to review) — gold text + gold border
+      if (isHighlightedChange) {
+        return "border-2 border-accent-gold bg-bg-surface text-accent-gold";
+      }
       return "border border-border bg-bg-surface text-text-primary";
     }
 

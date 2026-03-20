@@ -25,7 +25,7 @@ import {
 import type { DailyPuzzle } from "@/types";
 
 export default function PlayPage() {
-  const { loadPuzzle, status, score, startTime, puzzle } = useGameStore();
+  const { loadPuzzle, status, score, startTime, puzzle, chain } = useGameStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [alreadyCompleted, setAlreadyCompleted] = useState(false);
@@ -111,16 +111,29 @@ export default function PlayPage() {
       if (status !== "playing") return;
 
       const key = e.key.toLowerCase();
+      const state = useGameStore.getState();
       if (key.length === 1 && key >= "a" && key <= "z") {
         e.preventDefault();
-        useGameStore.getState().inputLetter(key);
+        state.inputLetter(key);
       } else if (key === "backspace") {
         e.preventDefault();
-        // Backspace deselects the current position
-        useGameStore.getState().selectPosition(null);
+        state.selectPosition(null);
       } else if (e.ctrlKey && key === "z") {
         e.preventDefault();
-        useGameStore.getState().undoStep();
+        state.undoStep();
+      } else if (e.ctrlKey && key === "y") {
+        e.preventDefault();
+        state.redoStep();
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        const pos = state.selectedPosition;
+        if (pos !== null && pos > 0) state.selectPosition(pos - 1);
+        else if (pos === null) state.selectPosition(state.wordLength - 1);
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        const pos = state.selectedPosition;
+        if (pos !== null && pos < state.wordLength - 1) state.selectPosition(pos + 1);
+        else if (pos === null) state.selectPosition(0);
       }
     };
 
@@ -185,6 +198,9 @@ export default function PlayPage() {
     );
   }
 
+  const currentSteps = chain.length - 1;
+  const puzzlePar = puzzle?.par ?? 0;
+
   return (
     <div className="flex flex-col min-h-dvh">
       <Header
@@ -202,6 +218,12 @@ export default function PlayPage() {
           )
         }
       />
+
+      {/* Stats bar — steps taken and par */}
+      <div className="flex justify-center gap-4 px-4 py-1.5 text-xs font-body text-text-secondary">
+        <span>Steps: <span className="font-game text-text-primary">{currentSteps}</span></span>
+        <span>Par: <span className="font-game text-text-primary">{puzzlePar}</span></span>
+      </div>
 
       <ChainBoard />
 

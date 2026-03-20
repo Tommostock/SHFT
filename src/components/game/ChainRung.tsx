@@ -9,6 +9,7 @@
 "use client";
 
 import { LetterSlot } from "./LetterSlot";
+import { WordDefinition } from "./WordDefinition";
 
 interface ChainRungProps {
   word: string;
@@ -21,6 +22,7 @@ interface ChainRungProps {
   selectedPosition: number | null;
   onSelectPosition: (pos: number) => void;
   animate?: "lock-in" | "shake" | "gold-flash" | null;
+  highlightChanged?: boolean; // When true, visually highlight the changed letter
 }
 
 export function ChainRung({
@@ -34,6 +36,7 @@ export function ChainRung({
   selectedPosition,
   onSelectPosition,
   animate,
+  highlightChanged = false,
 }: ChainRungProps) {
   // Determine which letter changed from the previous word
   const changedPositions = new Set<number>();
@@ -76,10 +79,15 @@ export function ChainRung({
           isStart={isStart}
           isTarget={isTarget}
           isChanged={changedPositions.has(i)}
+          isHighlightedChange={highlightChanged && changedPositions.has(i)}
           matchesTarget={targetWord.length === word.length && letter === targetWord[i]}
           onSelect={onSelectPosition}
         />
       ))}
+      {/* Definition button — shown on locked rungs and start/target words */}
+      {(isLocked || isStart || isTarget) && (
+        <WordDefinition word={word} />
+      )}
     </div>
   );
 }

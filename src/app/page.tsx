@@ -1,6 +1,6 @@
 /**
  * Home Page — Landing screen with game mode cards.
- * See SPEC.md Section 7.2 for layout.
+ * Includes streak escalation, countdown timer, and how-to-play tutorial.
  */
 
 "use client";
@@ -11,15 +11,49 @@ import { Header } from "@/components/layout/Header";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { getTodayUTC, getPuzzleNumber, getDayOfWeek } from "@/lib/utils/dates";
 import { DAY_WORD_LENGTH } from "@/lib/utils/constants";
-import { getCurrentStreak, isTodayCompleted } from "@/lib/stores/guestStore";
+import { getCurrentStreak, isTodayCompleted, loadGuestData } from "@/lib/stores/guestStore";
+
+/** Get streak fire emoji based on streak length */
+function getStreakEmoji(streak: number): string {
+  if (streak >= 100) return "🔥🔥🔥";
+  if (streak >= 30) return "🔥🔥";
+  return "🔥";
+}
+
+/** Get time remaining until next UTC midnight */
+function getCountdown(): string {
+  const now = new Date();
+  const tomorrow = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate() + 1
+  ));
+  const diffMs = tomorrow.getTime() - now.getTime();
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  return `${hours}h ${minutes}m`;
+}
 
 export default function HomePage() {
   const [streak, setStreak] = useState(0);
   const [completed, setCompleted] = useState(false);
+  const [countdown, setCountdown] = useState("");
+  const [showTutorial, setShowTutorial] = useState(false);
 
   useEffect(() => {
     setStreak(getCurrentStreak());
     setCompleted(isTodayCompleted());
+    setCountdown(getCountdown());
+
+    // Show tutorial if first visit ever (no completions)
+    const data = loadGuestData();
+    if (Object.keys(data.completions).length === 0 && !data.lastPlayedDate) {
+      setShowTutorial(true);
+    }
+
+    // Update countdown every minute
+    const interval = setInterval(() => setCountdown(getCountdown()), 60000);
+    return () => clearInterval(interval);
   }, []);
 
   const today = getTodayUTC();
@@ -59,7 +93,12 @@ export default function HomePage() {
           </p>
           {streak > 0 && (
             <p className="text-sm text-text-secondary font-body mb-3">
-              🔥 {streak} day streak
+              {getStreakEmoji(streak)} {streak} day streak
+            </p>
+          )}
+          {completed && (
+            <p className="text-xs text-text-secondary font-body mb-3">
+              Next puzzle in {countdown}
             </p>
           )}
           <div
@@ -135,6 +174,59 @@ export default function HomePage() {
       </main>
 
       <BottomNav />
+
+      {/* How to Play tutorial overlay — shown on first visit */}
+      {showTutorial && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={() => setShowTutorial(false)}
+        >
+          <div
+            className="bg-bg-surface rounded-[var(--radius-md)] shadow-lg w-[90%] max-w-[360px] p-6 animate-slide-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="font-display text-xl text-text-primary text-center mb-4">
+              How to Play
+            </h2>
+
+            <div className="space-y-4 text-sm text-text-secondary font-body">
+              <div className="flex gap-3">
+                <span className="text-lg shrink-0">1️⃣</span>
+                <p>Change <span className="text-text-primary font-medium">one letter</span> at a time to transform the start word into the target word.</p>
+              </div>
+              <div className="flex gap-3">
+                <span className="text-lg shrink-0">2️⃣</span>
+                <p>Every step must be a <span className="text-text-primary font-medium">real English word</span>.</p>
+              </div>
+              <div className="flex gap-3">
+                <span className="text-lg shrink-0">3️⃣</span>
+                <p>Try to reach the target in as <span className="text-text-primary font-medium">few steps as possible</span>. Par is the shortest path.</p>
+              </div>
+              <div className="flex gap-3">
+                <span className="text-lg shrink-0">🟩</span>
+                <p><span className="text-accent-green font-medium">Green</span> letters are in the correct position.</p>
+              </div>
+              <div className="flex gap-3">
+                <span className="text-lg shrink-0">🏆</span>
+                <p>Match or beat par for a <span className="text-accent-gold font-medium">Gold Chain</span>!</p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowTutorial(false)}
+              className="
+                w-full mt-6 py-2.5
+                bg-accent-gold text-[#1A1A1A] font-body font-bold text-sm
+                rounded-[var(--radius-lg)]
+                hover:opacity-90
+              "
+            >
+              GOT IT
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
