@@ -3,8 +3,15 @@
  *
  * For each word length, builds an adjacency list where two words are
  * connected if they differ by exactly one letter. Uses pattern-grouping
- * optimisation: group words by wildcard patterns (_old, c_ld, co_d, col_)
- * and only compare within groups.
+ * optimisation for performance.
+ *
+ * IMPORTANT: After building the graph, we filter to the LARGEST CONNECTED
+ * COMPONENT only. This guarantees every word in the game can reach every
+ * other word via single-letter changes. Words in disconnected islands
+ * (like "iron" in 4-letter, or "pizza" in 5-letter) are removed.
+ *
+ * The filtered words are written back to words-{N}.json so the game's
+ * dictionary only contains playable words.
  *
  * Usage: npm run generate:graphs
  */
@@ -16,11 +23,8 @@ const DATA_DIR = join(process.cwd(), "public", "data");
 
 /**
  * Build adjacency list using pattern-grouping optimisation.
- * For each word, generate patterns with one letter replaced by "_".
- * Words sharing a pattern differ by exactly one letter at that position.
  */
 function buildGraph(words: string[]): Record<string, string[]> {
-  // Group words by wildcard pattern
   const patternGroups = new Map<string, string[]>();
 
   for (const word of words) {
@@ -33,15 +37,11 @@ function buildGraph(words: string[]): Record<string, string[]> {
     }
   }
 
-  // Build adjacency list from pattern groups
   const graph: Record<string, string[]> = {};
-
-  // Initialize all words with empty arrays
   for (const word of words) {
     graph[word] = [];
   }
 
-  // For each pattern group, all words in the group are neighbours
   for (const group of patternGroups.values()) {
     for (let i = 0; i < group.length; i++) {
       for (let j = i + 1; j < group.length; j++) {
@@ -51,7 +51,6 @@ function buildGraph(words: string[]): Record<string, string[]> {
     }
   }
 
-  // Remove duplicates and sort each word's neighbours
   for (const word of words) {
     graph[word] = [...new Set(graph[word])].sort();
   }
@@ -59,39 +58,114 @@ function buildGraph(words: string[]): Record<string, string[]> {
   return graph;
 }
 
-function main() {
-  for (const len of [3, 4, 5, 6]) {
-    const wordsPath = join(DATA_DIR, `words-${len}.json`);
-    const words: string[] = JSON.parse(readFileSync(wordsPath, "utf-8"));
+/**
+ * Find the largest connected component in the graph using BFS.
+ * Returns the set of words in that component.
+ */
+function findLargestComponent(graph: Record<string, string[]>): Set<string> {
+  const allWords = Object.keys(graph);
+  const visited = new Set<string>();
+  let largestComponent = new Set<string>();
 
-    console.log(`Building graph for ${len}-letter words (${words.length} words)...`);
-    const graph = buildGraph(words);
+  for (const startWord of allWords) {
+    if (visited.has(startWord)) continue;
 
-    // Count total edges
-    let totalEdges = 0;
-    for (const neighbours of Object.values(graph)) {
-      totalEdges += neighbours.length;
-    }
-    totalEdges /= 2; // Each edge counted twice
+    // BFS to find this component
+    const component = new Set<string>();
+    const queue = [startWord];
+    component.add(startWord);
+    visited.add(startWord);
 
-    // Remove words with no neighbours to save space
-    const prunedGraph: Record<string, string[]> = {};
-    for (const [word, neighbours] of Object.entries(graph)) {
-      if (neighbours.length > 0) {
-        prunedGraph[word] = neighbours;
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      for (const neighbour of graph[current] || []) {
+        if (!visited.has(neighbour)) {
+          visited.add(neighbour);
+          component.add(neighbour);
+          queue.push(neighbour);
+        }
       }
     }
 
-    const outPath = join(DATA_DIR, `graph-${len}.json`);
-    writeFileSync(outPath, JSON.stringify(prunedGraph));
-
-    const connectedWords = Object.keys(prunedGraph).length;
-    console.log(
-      `  graph-${len}.json: ${connectedWords} connected words, ${totalEdges} edges`
-    );
+    if (component.size > largestComponent.size) {
+      largestComponent = component;
+    }
   }
 
-  console.log("\n✓ Word graphs built!");
+  return largestComponent;
+}
+
+function main() {
+  for (const len of [3, 4, 5, 6]) {
+    const wordsPath = join(DATA_DIR, `words-${len}.json`);
+    const allWords: string[] = JSON.parse(readFileSync(wordsPath, "utf-8"));
+
+    console.log(`Building graph for ${len}-letter words (${allWords.length} words)...`);
+    const fullGraph = buildGraph(allWords);
+
+    // Remove isolated words (no neighbours)
+    const connectedGraph: Record<string, string[]> = {};
+    for (const [word, neighbours] of Object.entries(fullGraph)) {
+      if (neighbours.length > 0) {
+        connectedGraph[word] = neighbours;
+      }
+    }
+
+    // Find largest connected component
+    const mainComponent = findLargestComponent(connectedGraph);
+    const removedCount = Object.keys(connectedGraph).length - mainComponent.size;
+
+    // Filter graph to main component only
+    const filteredGraph: Record<string, string[]> = {};
+    for (const word of mainComponent) {
+      // Also filter each word's neighbours to only main component words
+      filteredGraph[word] = connectedGraph[word].filter((n) => mainComponent.has(n));
+    }
+
+    // Count edges
+    let totalEdges = 0;
+    for (const neighbours of Object.values(filteredGraph)) {
+      totalEdges += neighbours.length;
+    }
+    totalEdges /= 2;
+
+    // Write filtered graph
+    const graphPath = join(DATA_DIR, `graph-${len}.json`);
+    writeFileSync(graphPath, JSON.stringify(filteredGraph));
+
+    // Write filtered word list (only main component words)
+    // This ensures the game dictionary only contains playable words
+    const filteredWords = allWords.filter((w) => mainComponent.has(w));
+    writeFileSync(wordsPath, JSON.stringify(filteredWords));
+
+    console.log(
+      `  graph-${len}.json: ${mainComponent.size} words, ${totalEdges} edges`
+    );
+    if (removedCount > 0) {
+      console.log(
+        `  Removed ${removedCount} words in disconnected components`
+      );
+    }
+
+    // Also filter common words to only main component
+    const commonPath = join(DATA_DIR, `common-${len}.json`);
+    try {
+      const commonWords: string[] = JSON.parse(readFileSync(commonPath, "utf-8"));
+      const filteredCommon = commonWords.filter((w) => mainComponent.has(w));
+      const removedCommon = commonWords.length - filteredCommon.length;
+      writeFileSync(commonPath, JSON.stringify(filteredCommon));
+      if (removedCommon > 0) {
+        console.log(
+          `  Removed ${removedCommon} common words not in main component`
+        );
+      }
+    } catch {
+      // No common file for this length — ok
+    }
+  }
+
+  console.log("\n✓ Word graphs built (main component only)!");
+  console.log("✓ Word lists filtered to playable words only!");
 }
 
 main();
