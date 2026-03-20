@@ -1,6 +1,6 @@
 /**
  * GameKeyboard — Custom QWERTY keyboard for the SHFT game.
- * Compact layout with Undo (↩) and Backspace (⌫) keys.
+ * Compact layout with an Undo button to revert the last locked step.
  * Uses the game's custom styling, not the device keyboard.
  */
 
@@ -12,7 +12,7 @@ import { useCallback, useState } from "react";
 const ROWS = [
   ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
   ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
-  ["undo", "z", "x", "c", "v", "b", "n", "m", "back"],
+  ["undo", "z", "x", "c", "v", "b", "n", "m"],
 ];
 
 export function GameKeyboard() {
@@ -29,12 +29,6 @@ export function GameKeyboard() {
 
       if (key === "undo") {
         undoStep();
-        return;
-      }
-
-      if (key === "back") {
-        // Deselect the current position
-        selectPosition(null);
         return;
       }
 
@@ -64,7 +58,7 @@ export function GameKeyboard() {
       {ROWS.map((row, rowIdx) => (
         <div key={rowIdx} className="flex justify-center gap-[4px] mb-[4px]">
           {row.map((key) => {
-            const isSpecial = key === "undo" || key === "back";
+            const isUndo = key === "undo";
             const isPressed = pressedKey === key;
 
             return (
@@ -73,19 +67,13 @@ export function GameKeyboard() {
                 type="button"
                 onClick={() => handleKey(key)}
                 disabled={status !== "playing"}
-                aria-label={
-                  key === "undo"
-                    ? "Undo last step"
-                    : key === "back"
-                      ? "Backspace"
-                      : key.toUpperCase()
-                }
+                aria-label={isUndo ? "Undo last step" : key.toUpperCase()}
                 className={`
-                  ${isSpecial ? "flex-[1.5] min-w-[36px]" : "flex-1 min-w-[28px]"}
+                  ${isUndo ? "flex-[1.8] min-w-[48px]" : "flex-1 min-w-[28px]"}
                   h-12
                   flex items-center justify-center
                   rounded-[var(--radius-sm)]
-                  font-body text-sm font-medium uppercase
+                  font-body ${isUndo ? "text-xs" : "text-sm"} font-medium uppercase
                   select-none
                   transition-all duration-100
                   ${isPressed
@@ -95,7 +83,7 @@ export function GameKeyboard() {
                   disabled:opacity-40
                 `}
               >
-                {key === "undo" ? "↩" : key === "back" ? "⌫" : key.toUpperCase()}
+                {isUndo ? "UNDO" : key.toUpperCase()}
               </button>
             );
           })}
