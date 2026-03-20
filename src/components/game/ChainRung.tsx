@@ -1,6 +1,9 @@
 /**
  * ChainRung — A row of LetterSlots representing one word in the chain.
  * Can be locked (completed step), active (being edited), start, or target.
+ *
+ * Compares each letter against the target word at the same position.
+ * Matching letters turn gold to show progress.
  */
 
 "use client";
@@ -9,6 +12,7 @@ import { LetterSlot } from "./LetterSlot";
 
 interface ChainRungProps {
   word: string;
+  targetWord: string; // The puzzle's target word, for position matching
   previousWord?: string; // To highlight which letter changed
   isLocked: boolean;
   isActive: boolean;
@@ -21,6 +25,7 @@ interface ChainRungProps {
 
 export function ChainRung({
   word,
+  targetWord,
   previousWord,
   isLocked,
   isActive,
@@ -71,6 +76,7 @@ export function ChainRung({
           isStart={isStart}
           isTarget={isTarget}
           isChanged={changedPositions.has(i)}
+          matchesTarget={targetWord.length === word.length && letter === targetWord[i]}
           onSelect={onSelectPosition}
         />
       ))}

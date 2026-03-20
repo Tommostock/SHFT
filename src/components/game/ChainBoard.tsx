@@ -70,10 +70,12 @@ export function ChainBoard() {
 
   return (
     <div className="flex flex-col flex-1 px-4 py-2 overflow-hidden">
-      {/* Target word — always at top */}
+      {/* Target word — always at top. Matching letters light up based on
+          the player's current progress (active word or last locked word). */}
       <div className="flex justify-center py-2 shrink-0">
         <ChainRung
           word={targetWord}
+          targetWord={showActiveRung ? activeWord : lastLockedWord}
           isLocked={false}
           isActive={false}
           isStart={false}
@@ -119,6 +121,7 @@ export function ChainBoard() {
           <div className="flex justify-center py-1.5">
             <ChainRung
               word={activeWord}
+              targetWord={targetWord}
               previousWord={lastLockedWord}
               isLocked={false}
               isActive={true}
@@ -154,6 +157,7 @@ export function ChainBoard() {
               <div className="flex justify-center py-0.5">
                 <ChainRung
                   word={word}
+                  targetWord={targetWord}
                   previousWord={prevWord}
                   isLocked={true}
                   isActive={false}
