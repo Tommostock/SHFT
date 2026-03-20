@@ -2,8 +2,11 @@
  * LetterSlot — Individual letter display in a chain rung.
  * Tappable to select position for editing.
  *
- * When a letter matches the target word at the same position,
- * it turns gold to show progress toward the target.
+ * Visual states:
+ *   - Changed letter (just swapped): gold text + gold border, default background
+ *   - Correct position (matches target): gold fill background + gold border, white text
+ *   - Both changed AND correct: gold fill (correct takes priority)
+ *   - Target word: matching positions lit up, non-matching very dim
  */
 
 "use client";
@@ -15,8 +18,8 @@ interface LetterSlotProps {
   isLocked: boolean;
   isStart: boolean;
   isTarget: boolean;
-  isChanged: boolean; // This letter was the one that changed from previous word
-  matchesTarget: boolean; // This letter matches the target word at this position
+  isChanged: boolean;
+  matchesTarget: boolean;
   onSelect: (position: number) => void;
 }
 
@@ -33,26 +36,40 @@ export function LetterSlot({
 }: LetterSlotProps) {
   const canTap = !isLocked && !isStart && !isTarget;
 
-  // Determine text color based on state priority:
-  // 1. Selected → primary (white/black)
-  // 2. Target word with match → gold (lit up)
-  // 3. Target word without match → very dim
-  // 4. Matches target in chain → gold
-  // 5. Changed letter in locked rung → gold (existing behavior)
-  // 6. Default → primary
-  const getTextColor = () => {
-    if (isSelected) return "text-text-primary";
-    if (isTarget && matchesTarget) return "text-accent-gold";
-    if (isTarget) return "text-text-secondary opacity-30";
-    if (matchesTarget && (isLocked || isStart)) return "text-accent-gold";
-    if (isChanged && isLocked) return "text-accent-gold";
-    return "text-text-primary";
-  };
+  // Determine styles based on state
+  const getSlotStyles = () => {
+    // Currently selected for editing
+    if (isSelected) {
+      return "border-2 border-accent-gold bg-bg-elevated animate-letter-pop text-text-primary";
+    }
 
-  // Target word: matching letters are bright, non-matching are very dim
-  const getTargetOpacity = () => {
-    if (!isTarget) return "";
-    return matchesTarget ? "opacity-100" : "opacity-40";
+    // Target word at the top
+    if (isTarget) {
+      if (matchesTarget) {
+        return "border border-accent-gold/50 bg-bg-surface text-accent-gold opacity-100";
+      }
+      return "border border-border bg-bg-surface text-text-secondary opacity-40";
+    }
+
+    // Locked rung or start word in the chain
+    if (isLocked || isStart) {
+      // Correct position — gold fill, gold border, white text
+      if (matchesTarget) {
+        return "border border-accent-gold bg-accent-gold/20 text-text-primary";
+      }
+      // Changed letter — gold text, gold border, default background
+      if (isChanged) {
+        return "border border-accent-gold bg-bg-surface text-accent-gold";
+      }
+      // Default locked
+      return "border border-border bg-bg-surface text-text-primary";
+    }
+
+    // Active rung (editable)
+    if (matchesTarget) {
+      return "border border-accent-gold bg-accent-gold/20 text-text-primary cursor-pointer hover:bg-accent-gold/30";
+    }
+    return "border border-chain-active bg-bg-surface text-text-primary cursor-pointer hover:bg-bg-elevated";
   };
 
   return (
@@ -67,18 +84,7 @@ export function LetterSlot({
         font-game text-lg sm:text-xl font-bold uppercase
         rounded-[var(--radius-sm)]
         transition-all duration-200
-        ${isSelected
-          ? "border-2 border-accent-gold bg-bg-elevated animate-letter-pop"
-          : isLocked
-            ? `border bg-bg-surface ${matchesTarget ? "border-accent-gold/40" : "border-border"}`
-            : isStart
-              ? `border bg-bg-surface ${matchesTarget ? "border-accent-gold/40" : "border-border"}`
-              : isTarget
-                ? `border bg-bg-surface ${matchesTarget ? "border-accent-gold/50" : "border-border"}`
-                : "border border-chain-active bg-bg-surface cursor-pointer hover:bg-bg-elevated"
-        }
-        ${getTextColor()}
-        ${getTargetOpacity()}
+        ${getSlotStyles()}
       `}
     >
       {letter.toUpperCase()}
