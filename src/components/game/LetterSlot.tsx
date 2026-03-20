@@ -3,10 +3,10 @@
  * Tappable to select position for editing.
  *
  * Visual states:
- *   - Changed letter (just swapped): gold text + gold border, default background
- *   - Correct position (matches target): gold fill background + gold border, white text
- *   - Both changed AND correct: gold fill (correct takes priority)
- *   - Target word: matching positions lit up, non-matching very dim
+ *   - Selected letter: gold border (editing this position)
+ *   - Correct position (matches target): green fill + green border, white text
+ *   - Changed letter (just swapped): white text, no special styling
+ *   - Default: white text, standard border
  */
 
 "use client";
@@ -36,9 +36,8 @@ export function LetterSlot({
 }: LetterSlotProps) {
   const canTap = !isLocked && !isStart && !isTarget;
 
-  // Determine styles based on state
   const getSlotStyles = () => {
-    // Currently selected for editing
+    // Currently selected for editing — gold border
     if (isSelected) {
       return "border-2 border-accent-gold bg-bg-elevated animate-letter-pop text-text-primary";
     }
@@ -46,28 +45,26 @@ export function LetterSlot({
     // Target word at the top
     if (isTarget) {
       if (matchesTarget) {
-        return "border border-accent-gold/50 bg-bg-surface text-accent-gold opacity-100";
+        // Correct position on target — green fill + green border
+        return "border border-accent-green bg-accent-green/20 text-accent-green opacity-100";
       }
+      // Non-matching target position — very dim
       return "border border-border bg-bg-surface text-text-secondary opacity-40";
     }
 
     // Locked rung or start word in the chain
     if (isLocked || isStart) {
-      // Correct position — gold fill, gold border, white text
       if (matchesTarget) {
-        return "border border-accent-gold bg-accent-gold/20 text-text-primary";
+        // Correct position — green fill + green border, white text
+        return "border border-accent-green bg-accent-green/20 text-text-primary";
       }
-      // Changed letter — gold text, gold border, default background
-      if (isChanged) {
-        return "border border-accent-gold bg-bg-surface text-accent-gold";
-      }
-      // Default locked
+      // Default locked (including changed letters — no special styling)
       return "border border-border bg-bg-surface text-text-primary";
     }
 
     // Active rung (editable)
     if (matchesTarget) {
-      return "border border-accent-gold bg-accent-gold/20 text-text-primary cursor-pointer hover:bg-accent-gold/30";
+      return "border border-accent-green bg-accent-green/20 text-text-primary cursor-pointer hover:bg-accent-green/30";
     }
     return "border border-chain-active bg-bg-surface text-text-primary cursor-pointer hover:bg-bg-elevated";
   };
