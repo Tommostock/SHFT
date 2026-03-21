@@ -22,9 +22,7 @@ import { isValidStep } from "@/lib/game/validator";
 import { isWord } from "@/lib/game/dictionary";
 import { initPuzzlePool, getRandomPuzzle } from "@/lib/game/puzzlePool";
 import { Header } from "@/components/layout/Header";
-import { GameKeyboard } from "@/components/game/GameKeyboard";
 import { ShareButton } from "@/components/game/ShareButton";
-import { useGameStore } from "@/lib/stores/gameStore";
 import { Construction, RotateCcw } from "lucide-react";
 
 /** A single slot in the bridge chain */
@@ -393,11 +391,9 @@ export default function BridgesPage() {
         ))}
       </div>
 
-      {/* Keyboard — only show when playing */}
+      {/* Keyboard — inline since Bridges doesn't use the game store */}
       {!gameComplete && (
-        <div className="shrink-0">
-          <GameKeyboard />
-        </div>
+        <BridgesKeyboard onKey={handleKey} />
       )}
 
       {/* Complete overlay */}
@@ -458,6 +454,54 @@ export default function BridgesPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/** Simple QWERTY keyboard for Bridges mode (no game store dependency) */
+const KB_ROWS = [
+  ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+  ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
+  ["z", "x", "c", "v", "b", "n", "m"],
+];
+
+function BridgesKeyboard({ onKey }: { onKey: (key: string) => void }) {
+  const [pressedKey, setPressedKey] = useState<string | null>(null);
+
+  const press = (key: string) => {
+    setPressedKey(key);
+    setTimeout(() => setPressedKey(null), 100);
+    onKey(key);
+  };
+
+  return (
+    <div className="px-1 pb-3 pt-1.5 shrink-0" role="group" aria-label="Keyboard">
+      {KB_ROWS.map((row, rowIdx) => (
+        <div key={rowIdx} className="flex justify-center gap-[5px] mb-[6px]">
+          {row.map((key) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => press(key)}
+              aria-label={key.toUpperCase()}
+              style={{ width: "calc((100% - 54px) / 10)" }}
+              className={`
+                max-w-[36px] h-[42px]
+                flex items-center justify-center
+                rounded-[5px]
+                font-body text-[15px] font-medium uppercase
+                select-none transition-all duration-100
+                ${pressedKey === key
+                  ? "bg-text-primary text-bg-primary scale-95"
+                  : "bg-bg-elevated text-text-primary active:bg-border"
+                }
+              `}
+            >
+              {key.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      ))}
     </div>
   );
 }
