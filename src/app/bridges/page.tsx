@@ -37,20 +37,41 @@ interface BridgeSlot {
   solved: boolean;
 }
 
-/** Generate bridge slots from an optimal path, removing 2-3 words */
+/** Count how many letters differ between two words */
+function letterDiff(a: string, b: string): number {
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) diff++;
+  }
+  return diff;
+}
+
+/**
+ * Generate bridge slots from an optimal path, removing 2-3 words.
+ *
+ * Key rule: a gap is only valid if the words on either side of it
+ * differ by MORE than one letter. Otherwise the gap is pointless
+ * because the player could go directly from one side to the other.
+ */
 function createBridgeSlots(path: string[]): BridgeSlot[] {
   // Never remove first or last word
-  // Pick 2-3 random middle indices to blank out
-  const middleIndices: number[] = [];
+  // Find valid gap candidates: removing this word must leave
+  // surrounding words more than 1 letter apart
+  const validGapIndices: number[] = [];
   for (let i = 1; i < path.length - 1; i++) {
-    middleIndices.push(i);
+    const before = path[i - 1];
+    const after = path[i + 1];
+    // Only a valid gap if the surrounding words differ by 2+ letters
+    if (letterDiff(before, after) >= 2) {
+      validGapIndices.push(i);
+    }
   }
 
   // Shuffle and pick gaps, ensuring no two gaps are adjacent
-  const shuffled = middleIndices.sort(() => Math.random() - 0.5);
+  const shuffled = validGapIndices.sort(() => Math.random() - 0.5);
   const gapCount = Math.min(
     path.length <= 5 ? 2 : 3,
-    middleIndices.length
+    validGapIndices.length
   );
   const gapIndices = new Set<number>();
   for (const idx of shuffled) {
@@ -96,23 +117,31 @@ export default function BridgesPage() {
     load();
   }, []);
 
-  // Load a new puzzle
+  // Load a new puzzle — retry if not enough valid gaps
   const loadNewPuzzle = useCallback(() => {
-    // Need paths of at least 5 words (par 4+) for meaningful gaps
-    const puzzle = getRandomPuzzle(5, 8);
-    if (!puzzle) return;
+    for (let attempt = 0; attempt < 20; attempt++) {
+      const puzzle = getRandomPuzzle(5, 8);
+      if (!puzzle) continue;
 
-    const bridgeSlots = createBridgeSlots(puzzle.optimalPath);
-    setSlots(bridgeSlots);
-    setActiveGapIndex(null);
-    setSelectedPos(null);
-    setShakeIndex(null);
-    setGameComplete(false);
-    setAttempts(0);
+      const bridgeSlots = createBridgeSlots(puzzle.optimalPath);
+      const gapCount = bridgeSlots.filter((s) => s.isGap).length;
 
-    // Auto-select the first gap
-    const firstGap = bridgeSlots.findIndex((s) => s.isGap);
-    if (firstGap !== -1) setActiveGapIndex(firstGap);
+      // Need at least 2 gaps for a meaningful Bridges puzzle
+      if (gapCount < 2) continue;
+
+      // Found a good puzzle — use it
+      setSlots(bridgeSlots);
+      setActiveGapIndex(null);
+      setSelectedPos(null);
+      setShakeIndex(null);
+      setGameComplete(false);
+      setAttempts(0);
+
+      // Auto-select the first gap
+      const firstGap = bridgeSlots.findIndex((s) => s.isGap);
+      if (firstGap !== -1) setActiveGapIndex(firstGap);
+      return; // Found a puzzle, stop retrying
+    }
   }, []);
 
   // Check if a filled gap is valid (connects to both neighbours)
@@ -374,12 +403,24 @@ export default function BridgesPage() {
                     key={letterIdx}
                     type="button"
                     onClick={() => {
-                      if (slot.isGap && !slot.solved && !gameComplete) {
+                      if (gameComplete || !slot.isGap) return;
+                      if (slot.solved) {
+                        // Un-solve this gap so the player can re-edit it
+                        const newSlots = [...slots];
+                        newSlots[idx] = {
+                          ...slot,
+                          guess: "_".repeat(5),
+                          solved: false,
+                        };
+                        setSlots(newSlots);
+                        setActiveGapIndex(idx);
+                        setSelectedPos(0);
+                      } else {
                         setActiveGapIndex(idx);
                         setSelectedPos(letterIdx);
                       }
                     }}
-                    disabled={!slot.isGap || slot.solved || gameComplete}
+                    disabled={!slot.isGap || gameComplete}
                     className={`
                       w-[46px] h-[46px] sm:w-[52px] sm:h-[52px]
                       flex items-center justify-center
