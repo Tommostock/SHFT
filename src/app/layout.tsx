@@ -76,6 +76,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${instrumentSerif.variable} ${jetbrainsMono.variable} ${dmSans.variable}`}
     >
       <head>

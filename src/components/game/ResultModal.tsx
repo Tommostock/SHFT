@@ -105,8 +105,8 @@ export function ResultModal({
 
         {/* Chain quality */}
         <div className="text-center mb-6">
-          <div className="flex justify-center gap-1 mb-1">
-            {Array.from({ length: score.steps }).map((_, i) => (
+          <div className="flex justify-center gap-1 mb-1 flex-wrap max-w-[280px] mx-auto">
+            {Array.from({ length: Math.min(score.steps, 15) }).map((_, i) => (
               <Link key={i} size={16} className={chainColor} />
             ))}
           </div>

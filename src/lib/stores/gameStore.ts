@@ -99,6 +99,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       shakeActive: false,
       lockInAnimation: false,
       completeAnimation: false,
+      notAWord: false,
+      unchainableWord: null,
       redoStack: [],
     });
   },
@@ -123,6 +125,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       shakeActive: false,
       lockInAnimation: false,
       completeAnimation: false,
+      notAWord: false,
+      unchainableWord: null,
       redoStack: [],
     });
   },
@@ -277,6 +281,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       shakeActive: false,
       lockInAnimation: false,
       completeAnimation: false,
+      notAWord: false,
+      unchainableWord: null,
       redoStack: [],
     });
   },

@@ -115,9 +115,12 @@ body {
   100% { transform: rotateX(0deg); opacity: 1; }
 }
 
+.animate-lock-in {
+  perspective: 300px;
+}
+
 .animate-lock-in > button {
   animation: flip-in 400ms ease-out both;
-  perspective: 300px;
 }
 
 .animate-lock-in > button:nth-child(1) { animation-delay: 0ms; }
