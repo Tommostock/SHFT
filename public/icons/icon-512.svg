@@ -2,6 +2,6 @@
   <rect width="512" height="512" rx="80" fill="#0F0F0F"/>
   <text x="50%" y="54%" dominant-baseline="central" text-anchor="middle"
     font-family="'Instrument Serif', Georgia, 'Times New Roman', serif"
-    font-size="140" font-weight="400" font-style="italic"
-    fill="#F5F3EE" letter-spacing="8">SHFT</text>
+    font-size="140" font-weight="400"
+    fill="#F5F3EE" letter-spacing="6">SHFT</text>
 </svg>
