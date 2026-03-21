@@ -217,6 +217,16 @@ body {
   animation: chain-flash-green 800ms ease-out;
 }
 
+/* Fade out — used for brief flash overlays (e.g. Par or Bust green flash) */
+@keyframes fade-out {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.animate-fade-out {
+  animation: fade-out 800ms ease-out forwards;
+}
+
 /* Smooth scroll for chain area */
 .scroll-smooth-chain {
   scroll-behavior: smooth;

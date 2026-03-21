@@ -1,6 +1,6 @@
 /**
  * Home Page — Landing screen with game mode cards.
- * Includes streak escalation, countdown timer, and how-to-play tutorial.
+ * Includes streak escalation and how-to-play tutorial.
  */
 
 "use client";
@@ -10,8 +10,19 @@ import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { getTodayUTC, getPuzzleNumber } from "@/lib/utils/dates";
-import { getCurrentStreak, isTodayCompleted, loadGuestData } from "@/lib/stores/guestStore";
-import { Flame, Timer, Swords, Trophy, ArrowRightLeft, CheckCircle, BookOpen } from "lucide-react";
+import { getCurrentStreak, loadGuestData } from "@/lib/stores/guestStore";
+import {
+  Flame,
+  Zap,
+  Clock,
+  EyeOff,
+  Target,
+  Link as LinkIcon,
+  ArrowRightLeft,
+  CheckCircle,
+  BookOpen,
+  Trophy,
+} from "lucide-react";
 
 /** Get number of flame icons based on streak length */
 function getStreakFlames(streak: number): number {
@@ -20,40 +31,57 @@ function getStreakFlames(streak: number): number {
   return 1;
 }
 
-/** Get time remaining until next UTC midnight */
-function getCountdown(): string {
-  const now = new Date();
-  const tomorrow = new Date(Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate() + 1
-  ));
-  const diffMs = tomorrow.getTime() - now.getTime();
-  const hours = Math.floor(diffMs / (1000 * 60 * 60));
-  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-  return `${hours}h ${minutes}m`;
-}
+/** Game mode card data */
+const GAME_MODES = [
+  {
+    name: "Sprint",
+    href: "/sprint",
+    icon: Zap,
+    description: "3-min rapid fire",
+    color: "text-orange-400",
+  },
+  {
+    name: "Blitz",
+    href: "/blitz",
+    icon: Clock,
+    description: "60-sec single puzzle",
+    color: "text-blue-400",
+  },
+  {
+    name: "Blind",
+    href: "/blind",
+    icon: EyeOff,
+    description: "Words fade away",
+    color: "text-purple-400",
+  },
+  {
+    name: "Par or Bust",
+    href: "/par-or-bust",
+    icon: Target,
+    description: "Stay under par",
+    color: "text-red-400",
+  },
+  {
+    name: "Marathon",
+    href: "/marathon",
+    icon: LinkIcon,
+    description: "Chain of chains",
+    color: "text-emerald-400",
+  },
+];
 
 export default function HomePage() {
   const [streak, setStreak] = useState(0);
-  const [completed, setCompleted] = useState(false);
-  const [countdown, setCountdown] = useState("");
   const [showTutorial, setShowTutorial] = useState(false);
 
   useEffect(() => {
     setStreak(getCurrentStreak());
-    setCompleted(isTodayCompleted());
-    setCountdown(getCountdown());
 
     // Show tutorial if first visit ever (no completions)
     const data = loadGuestData();
     if (Object.keys(data.completions).length === 0 && !data.lastPlayedDate) {
       setShowTutorial(true);
     }
-
-    // Update countdown every minute
-    const interval = setInterval(() => setCountdown(getCountdown()), 60000);
-    return () => clearInterval(interval);
   }, []);
 
   const today = getTodayUTC();
@@ -87,7 +115,11 @@ export default function HomePage() {
           {streak > 0 && (
             <div className="flex items-center gap-1.5 text-sm text-text-secondary font-body mb-3">
               {Array.from({ length: getStreakFlames(streak) }).map((_, i) => (
-                <Flame key={i} size={14} className="text-accent-gold fill-accent-gold" />
+                <Flame
+                  key={i}
+                  size={14}
+                  className="text-accent-gold fill-accent-gold"
+                />
               ))}
               <span>{streak} day streak</span>
             </div>
@@ -103,43 +135,35 @@ export default function HomePage() {
           </div>
         </Link>
 
-        {/* Secondary mode cards — Sprint & Versus */}
+        {/* Game Modes */}
+        <h3 className="font-display text-base text-text-secondary px-1">
+          Game Modes
+        </h3>
         <div className="grid grid-cols-2 gap-3">
-          <div
-            className="
-              p-4
-              bg-bg-surface rounded-[var(--radius-md)]
-              border border-border
-              opacity-50
-            "
-          >
-            <h3 className="font-display text-base text-text-primary mb-1">
-              Sprint
-            </h3>
-            <div className="flex items-center gap-1.5 text-xs text-text-secondary font-body"><Timer size={12} /> 3-min challenge</div>
-            <p className="text-[10px] text-text-secondary font-body mt-2 uppercase tracking-wide">
-              Coming Soon
-            </p>
-          </div>
-          <div
-            className="
-              p-4
-              bg-bg-surface rounded-[var(--radius-md)]
-              border border-border
-              opacity-50
-            "
-          >
-            <h3 className="font-display text-base text-text-primary mb-1">
-              Versus
-            </h3>
-            <div className="flex items-center gap-1.5 text-xs text-text-secondary font-body"><Swords size={12} /> 1v1 matches</div>
-            <p className="text-[10px] text-text-secondary font-body mt-2 uppercase tracking-wide">
-              Coming Soon
-            </p>
-          </div>
+          {GAME_MODES.map((mode) => (
+            <Link
+              key={mode.name}
+              href={mode.href}
+              className="
+                p-4
+                bg-bg-surface rounded-[var(--radius-md)]
+                border border-border
+                hover:border-accent-gold
+                transition-colors duration-200
+              "
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <mode.icon size={16} className={mode.color} />
+                <h3 className="font-display text-base text-text-primary">
+                  {mode.name}
+                </h3>
+              </div>
+              <p className="text-xs text-text-secondary font-body">
+                {mode.description}
+              </p>
+            </Link>
+          ))}
         </div>
-
-        {/* Practice card — hidden during playtest */}
       </main>
 
       <BottomNav />
@@ -163,25 +187,46 @@ export default function HomePage() {
                 <div className="w-7 h-7 rounded-full bg-bg-elevated flex items-center justify-center shrink-0 mt-0.5">
                   <ArrowRightLeft size={14} className="text-text-primary" />
                 </div>
-                <p>Change <span className="text-text-primary font-medium">one letter</span> at a time to transform the start word into the target word.</p>
+                <p>
+                  Change{" "}
+                  <span className="text-text-primary font-medium">
+                    one letter
+                  </span>{" "}
+                  at a time to transform the start word into the target word.
+                </p>
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-7 h-7 rounded-full bg-bg-elevated flex items-center justify-center shrink-0 mt-0.5">
                   <BookOpen size={14} className="text-text-primary" />
                 </div>
-                <p>Every step must be a <span className="text-text-primary font-medium">real English word</span>.</p>
+                <p>
+                  Every step must be a{" "}
+                  <span className="text-text-primary font-medium">
+                    real English word
+                  </span>
+                  .
+                </p>
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-7 h-7 rounded-full bg-bg-elevated flex items-center justify-center shrink-0 mt-0.5">
                   <CheckCircle size={14} className="text-accent-green" />
                 </div>
-                <p><span className="text-accent-green font-medium">Green</span> letters are in the correct position.</p>
+                <p>
+                  <span className="text-accent-green font-medium">Green</span>{" "}
+                  letters are in the correct position.
+                </p>
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-7 h-7 rounded-full bg-bg-elevated flex items-center justify-center shrink-0 mt-0.5">
                   <Trophy size={14} className="text-accent-gold" />
                 </div>
-                <p>Reach the target in as few steps as possible. Match par for a <span className="text-accent-gold font-medium">Gold Chain</span>.</p>
+                <p>
+                  Reach the target in as few steps as possible. Match par for a{" "}
+                  <span className="text-accent-gold font-medium">
+                    Gold Chain
+                  </span>
+                  .
+                </p>
               </div>
             </div>
 
