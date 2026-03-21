@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* True Lies font — used for Spektator Games branding */
+@font-face {
+  font-family: "True Lies";
+  src: url("/fonts/true-lies.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ===========================
    SHFT Design System
    See SPEC.md Section 7.1
