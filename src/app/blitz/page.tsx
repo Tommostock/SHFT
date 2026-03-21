@@ -83,8 +83,7 @@ export default function BlitzPage() {
     handledCompletionRef.current = false;
     loadCustomPuzzle(puzzle.startWord, puzzle.targetWord, puzzle.par);
 
-    // Reset blitz state
-    setPhase("playing");
+    // Reset blitz state (don't override "ready" on first load)
     setTimerStarted(false);
     setTimeRemaining(0);
     timerStartTimeRef.current = null;
@@ -283,7 +282,7 @@ export default function BlitzPage() {
             {/* Play again */}
             <button
               type="button"
-              onClick={loadNewPuzzle}
+              onClick={() => { loadNewPuzzle(); setPhase("playing"); }}
               className="
                 w-full py-3 px-6
                 bg-accent-gold text-[#1A1A1A] font-body font-bold text-base
@@ -353,7 +352,7 @@ export default function BlitzPage() {
             {/* Play again */}
             <button
               type="button"
-              onClick={loadNewPuzzle}
+              onClick={() => { loadNewPuzzle(); setPhase("playing"); }}
               className="
                 w-full py-3 px-6
                 bg-accent-gold text-[#1A1A1A] font-body font-bold text-base
