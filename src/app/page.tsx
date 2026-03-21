@@ -17,11 +17,12 @@ import {
   Clock,
   EyeOff,
   Target,
-  Link as LinkIcon,
   ArrowRightLeft,
   CheckCircle,
   BookOpen,
   Trophy,
+  Route,
+  BrickWall,
 } from "lucide-react";
 
 /** Get number of flame icons based on streak length */
@@ -64,14 +65,14 @@ const GAME_MODES = [
   {
     name: "Marathon",
     href: "/marathon",
-    icon: LinkIcon,
+    icon: Route,
     description: "Chain of chains",
     color: "text-emerald-400",
   },
   {
     name: "Bridges",
     href: "/bridges",
-    icon: Trophy,
+    icon: BrickWall,
     description: "Fill the gaps",
     color: "text-amber-400",
   },
