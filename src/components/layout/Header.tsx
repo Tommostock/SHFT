@@ -30,13 +30,14 @@ export function Header({ showBack, centerText, rightContent }: HeaderProps) {
             ← Back
           </Link>
         ) : (
-          <Link href="/" className="flex items-baseline gap-2">
+          <Link href="/" className="flex items-baseline gap-1.5">
             <span className="font-display text-xl text-text-primary">SHFT</span>
+            <span className="font-display text-[10px] text-text-primary">Made by</span>
             <span
               className="text-[10px] tracking-wide"
               style={{ fontFamily: '"True Lies", sans-serif', color: "#D22223" }}
             >
-              Made by Spektator Games
+              Spektator Games
             </span>
           </Link>
         )}
