@@ -9,8 +9,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { BottomNav } from "@/components/layout/BottomNav";
-import { getTodayUTC, getPuzzleNumber, getDayOfWeek } from "@/lib/utils/dates";
-import { DAY_WORD_LENGTH } from "@/lib/utils/constants";
+import { getTodayUTC, getPuzzleNumber } from "@/lib/utils/dates";
 import { getCurrentStreak, isTodayCompleted, loadGuestData } from "@/lib/stores/guestStore";
 import { Flame, Timer, Swords, Trophy, ArrowRightLeft, CheckCircle, BookOpen } from "lucide-react";
 
@@ -59,8 +58,6 @@ export default function HomePage() {
 
   const today = getTodayUTC();
   const puzzleNumber = getPuzzleNumber(today);
-  const dayOfWeek = getDayOfWeek(today);
-  const wordLength = DAY_WORD_LENGTH[dayOfWeek] ?? 4;
 
   return (
     <div className="flex flex-col min-h-dvh">
@@ -85,7 +82,7 @@ export default function HomePage() {
             </h2>
           </div>
           <p className="text-sm text-text-secondary font-body mb-3">
-            #{puzzleNumber} · {wordLength} letters
+            #{puzzleNumber} · 5 letters
           </p>
           {streak > 0 && (
             <div className="flex items-center gap-1.5 text-sm text-text-secondary font-body mb-3">

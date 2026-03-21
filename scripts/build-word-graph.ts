@@ -96,7 +96,7 @@ function findLargestComponent(graph: Record<string, string[]>): Set<string> {
 }
 
 function main() {
-  for (const len of [3, 4, 5, 6]) {
+  for (const len of [5]) {
     const wordsPath = join(DATA_DIR, `words-${len}.json`);
     const allWords: string[] = JSON.parse(readFileSync(wordsPath, "utf-8"));
 

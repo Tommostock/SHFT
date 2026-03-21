@@ -8,19 +8,8 @@ export const LAUNCH_DATE = "2026-03-20";
 /** Max content width for the mobile-first layout */
 export const MAX_WIDTH = 480;
 
-/** Supported word lengths */
-export const WORD_LENGTHS = [3, 4, 5, 6] as const;
-
-/** Day-of-week to word length mapping (0=Sun, 1=Mon, ..., 6=Sat) */
-export const DAY_WORD_LENGTH: Record<number, number> = {
-  0: 3, // Sunday: starter (3-letter)
-  1: 4, // Monday: standard (4-letter)
-  2: 4, // Tuesday: standard
-  3: 4, // Wednesday: standard
-  4: 4, // Thursday: standard
-  5: 5, // Friday: advanced (5-letter)
-  6: 5, // Saturday: advanced
-};
+/** Fixed word length — SHFT is a 5-letter word game */
+export const WORD_LENGTH = 5;
 
 /** Chain quality thresholds (steps relative to par) */
 export const QUALITY_THRESHOLDS = {

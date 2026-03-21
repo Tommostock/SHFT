@@ -377,7 +377,7 @@ async function main() {
   }
 
   // Filter and output by word length
-  for (const len of [3, 4, 5, 6]) {
+  for (const len of [5]) {
     const words = [...mergedSet].filter((w) => {
       if (w.length !== len) return false;
       // Only pure lowercase alphabetic (no hyphens, apostrophes, accents, capitals)
