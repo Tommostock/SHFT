@@ -68,6 +68,13 @@ const GAME_MODES = [
     description: "Chain of chains",
     color: "text-emerald-400",
   },
+  {
+    name: "Bridges",
+    href: "/bridges",
+    icon: Trophy,
+    description: "Fill the gaps",
+    color: "text-amber-400",
+  },
 ];
 
 export default function HomePage() {
