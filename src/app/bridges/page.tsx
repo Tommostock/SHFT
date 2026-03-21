@@ -46,13 +46,19 @@ function createBridgeSlots(path: string[]): BridgeSlot[] {
     middleIndices.push(i);
   }
 
-  // Shuffle and pick how many to remove
+  // Shuffle and pick gaps, ensuring no two gaps are adjacent
   const shuffled = middleIndices.sort(() => Math.random() - 0.5);
   const gapCount = Math.min(
     path.length <= 5 ? 2 : 3,
     middleIndices.length
   );
-  const gapIndices = new Set(shuffled.slice(0, gapCount));
+  const gapIndices = new Set<number>();
+  for (const idx of shuffled) {
+    if (gapIndices.size >= gapCount) break;
+    // Skip if adjacent to an existing gap
+    if (gapIndices.has(idx - 1) || gapIndices.has(idx + 1)) continue;
+    gapIndices.add(idx);
+  }
 
   return path.map((word, i) => ({
     answer: word,
@@ -100,6 +106,7 @@ export default function BridgesPage() {
     setSlots(bridgeSlots);
     setActiveGapIndex(null);
     setSelectedPos(null);
+    setShakeIndex(null);
     setGameComplete(false);
     setAttempts(0);
 
@@ -142,17 +149,35 @@ export default function BridgesPage() {
       const slot = slots[activeGapIndex];
       if (!slot || !slot.isGap || slot.solved) return;
 
-      if (selectedPos === null) {
-        // Auto-select first unfilled position
-        const firstBlank = slot.guess.indexOf("_");
-        if (firstBlank !== -1) setSelectedPos(firstBlank);
-        else setSelectedPos(0);
+      // Handle backspace — clear current position, stay put (or move back if already blank)
+      if (key === "backspace") {
+        if (selectedPos === null) return;
+        const currentGuess = slot.guess.split("");
+        if (currentGuess[selectedPos] !== "_") {
+          // Clear current position, stay
+          currentGuess[selectedPos] = "_";
+        } else if (selectedPos > 0) {
+          // Already blank — move back and clear
+          currentGuess[selectedPos - 1] = "_";
+          setSelectedPos(selectedPos - 1);
+        }
+        const newSlots = [...slots];
+        newSlots[activeGapIndex] = { ...slot, guess: currentGuess.join("") };
+        setSlots(newSlots);
         return;
+      }
+
+      // Auto-select first unfilled position if none selected
+      let pos = selectedPos;
+      if (pos === null) {
+        const firstBlank = slot.guess.indexOf("_");
+        pos = firstBlank !== -1 ? firstBlank : 0;
+        setSelectedPos(pos);
       }
 
       // Place the letter
       const currentGuess = slot.guess.split("");
-      currentGuess[selectedPos] = key;
+      currentGuess[pos] = key;
       const newGuess = currentGuess.join("");
 
       const newSlots = [...slots];
@@ -186,19 +211,24 @@ export default function BridgesPage() {
         } else {
           // Wrong — shake and reset this gap
           setShakeIndex(activeGapIndex);
+          const gapIdx = activeGapIndex;
           setTimeout(() => {
-            newSlots[activeGapIndex] = {
-              ...slot,
-              guess: "_".repeat(5),
-            };
-            setSlots([...newSlots]);
+            // Reset just the gap that was wrong, using fresh state
+            setSlots((prev) => {
+              const updated = [...prev];
+              updated[gapIdx] = {
+                ...updated[gapIdx],
+                guess: "_".repeat(5),
+              };
+              return updated;
+            });
             setShakeIndex(null);
             setSelectedPos(null);
           }, 400);
         }
       } else {
         // Move to next blank position
-        const nextBlank = newGuess.indexOf("_", selectedPos + 1);
+        const nextBlank = newGuess.indexOf("_", pos + 1);
         if (nextBlank !== -1) {
           setSelectedPos(nextBlank);
         } else {
@@ -219,18 +249,9 @@ export default function BridgesPage() {
       if (key.length === 1 && key >= "a" && key <= "z") {
         e.preventDefault();
         handleKey(key);
-      } else if (key === "backspace" && activeGapIndex !== null) {
+      } else if (key === "backspace") {
         e.preventDefault();
-        // Clear current position and move back
-        const slot = slots[activeGapIndex];
-        if (slot && selectedPos !== null) {
-          const currentGuess = slot.guess.split("");
-          currentGuess[selectedPos] = "_";
-          const newSlots = [...slots];
-          newSlots[activeGapIndex] = { ...slot, guess: currentGuess.join("") };
-          setSlots(newSlots);
-          if (selectedPos > 0) setSelectedPos(selectedPos - 1);
-        }
+        handleKey("backspace");
       }
     };
 
@@ -462,7 +483,7 @@ export default function BridgesPage() {
 const KB_ROWS = [
   ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
   ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
-  ["z", "x", "c", "v", "b", "n", "m"],
+  ["backspace", "z", "x", "c", "v", "b", "n", "m"],
 ];
 
 function BridgesKeyboard({ onKey }: { onKey: (key: string) => void }) {
@@ -478,28 +499,32 @@ function BridgesKeyboard({ onKey }: { onKey: (key: string) => void }) {
     <div className="px-1 pb-3 pt-1.5 shrink-0" role="group" aria-label="Keyboard">
       {KB_ROWS.map((row, rowIdx) => (
         <div key={rowIdx} className="flex justify-center gap-[5px] mb-[6px]">
-          {row.map((key) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => press(key)}
-              aria-label={key.toUpperCase()}
-              style={{ width: "calc((100% - 54px) / 10)" }}
-              className={`
-                max-w-[36px] h-[42px]
-                flex items-center justify-center
-                rounded-[5px]
-                font-body text-[15px] font-medium uppercase
-                select-none transition-all duration-100
-                ${pressedKey === key
-                  ? "bg-text-primary text-bg-primary scale-95"
-                  : "bg-bg-elevated text-text-primary active:bg-border"
-                }
-              `}
-            >
-              {key.toUpperCase()}
-            </button>
-          ))}
+          {row.map((key) => {
+            const isBackspace = key === "backspace";
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => press(key)}
+                aria-label={isBackspace ? "Backspace" : key.toUpperCase()}
+                style={isBackspace ? undefined : { width: "calc((100% - 54px) / 10)" }}
+                className={`
+                  ${isBackspace ? "w-[52px] shrink-0" : "max-w-[36px]"}
+                  h-[42px]
+                  flex items-center justify-center
+                  rounded-[5px]
+                  font-body ${isBackspace ? "text-[10px] tracking-wide" : "text-[15px]"} font-medium uppercase
+                  select-none transition-all duration-100
+                  ${pressedKey === key
+                    ? "bg-text-primary text-bg-primary scale-95"
+                    : "bg-bg-elevated text-text-primary active:bg-border"
+                  }
+                `}
+              >
+                {isBackspace ? "DEL" : key.toUpperCase()}
+              </button>
+            );
+          })}
         </div>
       ))}
     </div>
