@@ -20,7 +20,7 @@ import { Header } from "@/components/layout/Header";
 import { ShareButton } from "@/components/game/ShareButton";
 import { Timer } from "@/components/game/Timer";
 import { initPuzzlePool, getRandomPuzzle, getPuzzleFromStart } from "@/lib/game/puzzlePool";
-import { Link as LinkIcon, ArrowRight, RotateCcw } from "lucide-react";
+import { Route, ArrowRight, RotateCcw } from "lucide-react";
 
 /** Session stats for the marathon run */
 interface MarathonStats {
@@ -197,7 +197,7 @@ export default function MarathonPage() {
         <Header showBack centerText="Marathon" />
         <div className="flex-1 flex flex-col items-center justify-center px-6 text-center gap-6">
           <div className="w-16 h-16 rounded-full bg-emerald-400/20 flex items-center justify-center">
-            <LinkIcon size={32} className="text-emerald-400" />
+            <Route size={32} className="text-emerald-400" />
           </div>
           <h1 className="font-display text-3xl text-text-primary">Marathon</h1>
           <div className="space-y-2 text-text-secondary font-body text-sm max-w-[300px]">
@@ -241,7 +241,7 @@ export default function MarathonPage() {
       {/* Stats bar */}
       <div className="flex justify-center gap-4 px-4 py-1.5 text-xs font-body text-text-secondary shrink-0">
         <span className="flex items-center gap-1">
-          <LinkIcon size={12} />
+          <Route size={12} />
           <span className="font-game text-text-primary">
             {stats.chainsCompleted}
           </span>

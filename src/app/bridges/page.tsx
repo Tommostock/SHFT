@@ -23,7 +23,7 @@ import { isWord } from "@/lib/game/dictionary";
 import { initPuzzlePool, getRandomPuzzle } from "@/lib/game/puzzlePool";
 import { Header } from "@/components/layout/Header";
 import { ShareButton } from "@/components/game/ShareButton";
-import { Construction, RotateCcw } from "lucide-react";
+import { Construction, RotateCcw, Delete } from "lucide-react";
 
 /** A single slot in the bridge chain */
 interface BridgeSlot {
@@ -524,7 +524,7 @@ export default function BridgesPage() {
 const KB_ROWS = [
   ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
   ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
-  ["backspace", "z", "x", "c", "v", "b", "n", "m"],
+  ["z", "x", "c", "v", "b", "n", "m", "backspace"],
 ];
 
 function BridgesKeyboard({ onKey }: { onKey: (key: string) => void }) {
@@ -562,7 +562,7 @@ function BridgesKeyboard({ onKey }: { onKey: (key: string) => void }) {
                   }
                 `}
               >
-                {isBackspace ? "DEL" : key.toUpperCase()}
+                {isBackspace ? <Delete size={18} /> : key.toUpperCase()}
               </button>
             );
           })}

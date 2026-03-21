@@ -22,7 +22,7 @@ import {
   BookOpen,
   Trophy,
   Route,
-  BrickWall,
+  Construction,
 } from "lucide-react";
 
 /** Get number of flame icons based on streak length */
@@ -72,7 +72,7 @@ const GAME_MODES = [
   {
     name: "Bridges",
     href: "/bridges",
-    icon: BrickWall,
+    icon: Construction,
     description: "Fill the gaps",
     color: "text-amber-400",
   },
