@@ -16,13 +16,14 @@ import { GameKeyboard } from "@/components/game/GameKeyboard";
 import { ResultModal } from "@/components/game/ResultModal";
 import { Header } from "@/components/layout/Header";
 import { getCurrentStreak } from "@/lib/stores/guestStore";
-import { Pause } from "lucide-react";
+import { Pause, ArrowRightLeft } from "lucide-react";
 import type { DailyPuzzle } from "@/types";
 
 export default function PlayPage() {
   const { loadPuzzle, status, score, chain, startWord, targetWord, par } = useGameStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showReady, setShowReady] = useState(true);
   const [showResult, setShowResult] = useState(false);
   const [showPause, setShowPause] = useState(false);
   const [streak, setStreak] = useState(0);
@@ -147,6 +148,33 @@ export default function PlayPage() {
         <Header showBack />
         <div className="flex-1 flex items-center justify-center px-6 text-center">
           <p className="text-text-secondary font-body">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Ready screen — rules before starting
+  if (showReady) {
+    return (
+      <div className="flex flex-col h-dvh">
+        <Header showBack centerText="Daily Chain" />
+        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center gap-6">
+          <div className="w-16 h-16 rounded-full bg-accent-gold/20 flex items-center justify-center">
+            <ArrowRightLeft size={32} className="text-accent-gold" />
+          </div>
+          <h1 className="font-display text-3xl text-text-primary">Daily Chain</h1>
+          <div className="space-y-2 text-text-secondary font-body text-sm max-w-[300px]">
+            <p>Change <span className="text-text-primary font-medium">one letter</span> at a time to transform the start word into the target.</p>
+            <p>Every step must be a <span className="text-text-primary font-medium">real English word</span>.</p>
+            <p>Reach the target in as few steps as possible.</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowReady(false)}
+            className="px-10 py-3.5 mt-2 bg-accent-gold text-[#1A1A1A] font-body font-bold text-lg rounded-[var(--radius-lg)] hover:opacity-90 transition-opacity"
+          >
+            START
+          </button>
         </div>
       </div>
     );

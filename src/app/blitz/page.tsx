@@ -33,8 +33,8 @@ export default function BlitzPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // --- Blitz lifecycle: "playing" | "won" | "lost" ---
-  const [phase, setPhase] = useState<"playing" | "won" | "lost">("playing");
+  // --- Blitz lifecycle: "ready" | "playing" | "won" | "lost" ---
+  const [phase, setPhase] = useState<"ready" | "playing" | "won" | "lost">("ready");
 
   // --- Has the player typed their first letter? (starts the timer) ---
   const [timerStarted, setTimerStarted] = useState(false);
@@ -196,6 +196,35 @@ export default function BlitzPage() {
         <Header showBack centerText="Blitz" />
         <div className="flex-1 flex items-center justify-center px-6 text-center">
           <p className="text-text-secondary font-body">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ──────────────────────────────────────
+  // RENDER: Ready screen — rules before starting
+  // ──────────────────────────────────────
+  if (phase === "ready") {
+    return (
+      <div className="flex flex-col h-dvh">
+        <Header showBack centerText="Blitz" />
+        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center gap-6">
+          <div className="w-16 h-16 rounded-full bg-blue-400/20 flex items-center justify-center">
+            <Clock size={32} className="text-blue-400" />
+          </div>
+          <h1 className="font-display text-3xl text-text-primary">Blitz</h1>
+          <div className="space-y-2 text-text-secondary font-body text-sm max-w-[300px]">
+            <p>Solve one puzzle before the <span className="text-text-primary font-medium">60-second clock</span> runs out.</p>
+            <p>The timer starts when you type your <span className="text-text-primary font-medium">first letter</span>.</p>
+            <p>Faster solves earn a higher score.</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setPhase("playing")}
+            className="px-10 py-3.5 mt-2 bg-accent-gold text-[#1A1A1A] font-body font-bold text-lg rounded-[var(--radius-lg)] hover:opacity-90 transition-opacity"
+          >
+            START
+          </button>
         </div>
       </div>
     );

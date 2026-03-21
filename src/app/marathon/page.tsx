@@ -35,6 +35,7 @@ export default function MarathonPage() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showReady, setShowReady] = useState(true);
   const [timerRunning, setTimerRunning] = useState(false);
   const [paused, setPaused] = useState(false);
   const [gameOver, setGameOver] = useState(false);
@@ -64,8 +65,7 @@ export default function MarathonPage() {
 
         loadCustomPuzzle(puzzle.startWord, puzzle.targetWord, puzzle.par);
         setLoading(false);
-        setTimerRunning(true);
-        timerStartRef.current = Date.now();
+        // Timer starts when user clicks START on the ready screen
       } catch {
         setError("Failed to load game data.");
         setLoading(false);
@@ -185,6 +185,37 @@ export default function MarathonPage() {
         <Header showBack centerText="Marathon" />
         <div className="flex-1 flex items-center justify-center px-6 text-center">
           <p className="text-text-secondary font-body">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Ready screen — rules before starting
+  if (showReady) {
+    return (
+      <div className="flex flex-col h-dvh">
+        <Header showBack centerText="Marathon" />
+        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center gap-6">
+          <div className="w-16 h-16 rounded-full bg-emerald-400/20 flex items-center justify-center">
+            <LinkIcon size={32} className="text-emerald-400" />
+          </div>
+          <h1 className="font-display text-3xl text-text-primary">Marathon</h1>
+          <div className="space-y-2 text-text-secondary font-body text-sm max-w-[300px]">
+            <p>Solve a puzzle, then the <span className="text-text-primary font-medium">target word becomes the start</span> of the next one.</p>
+            <p>How many chains can you link together?</p>
+            <p>Random difficulty each round. Pause anytime.</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setShowReady(false);
+              setTimerRunning(true);
+              timerStartRef.current = Date.now();
+            }}
+            className="px-10 py-3.5 mt-2 bg-accent-gold text-[#1A1A1A] font-body font-bold text-lg rounded-[var(--radius-lg)] hover:opacity-90 transition-opacity"
+          >
+            START
+          </button>
         </div>
       </div>
     );

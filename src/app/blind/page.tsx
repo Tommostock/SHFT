@@ -44,6 +44,7 @@ export default function BlindChainPage() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showReady, setShowReady] = useState(true);
   const [showResult, setShowResult] = useState(false);
   const [showPause, setShowPause] = useState(false);
   const [gamesPlayed, setGamesPlayed] = useState(0);
@@ -236,6 +237,33 @@ export default function BlindChainPage() {
         <Header showBack />
         <div className="flex-1 flex items-center justify-center px-6 text-center">
           <p className="text-text-secondary font-body">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Ready screen — rules before starting
+  if (showReady) {
+    return (
+      <div className="flex flex-col h-dvh">
+        <Header showBack centerText="Blind Chain" />
+        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center gap-6">
+          <div className="w-16 h-16 rounded-full bg-purple-400/20 flex items-center justify-center">
+            <EyeOff size={32} className="text-purple-400" />
+          </div>
+          <h1 className="font-display text-3xl text-text-primary">Blind Chain</h1>
+          <div className="space-y-2 text-text-secondary font-body text-sm max-w-[300px]">
+            <p>Solve the word chain, but previous words <span className="text-text-primary font-medium">fade away</span> after each step.</p>
+            <p>Only the start word, your current word, and the target stay visible.</p>
+            <p><span className="text-text-primary font-medium">No undo</span> — you&apos;re flying blind.</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowReady(false)}
+            className="px-10 py-3.5 mt-2 bg-accent-gold text-[#1A1A1A] font-body font-bold text-lg rounded-[var(--radius-lg)] hover:opacity-90 transition-opacity"
+          >
+            START
+          </button>
         </div>
       </div>
     );
