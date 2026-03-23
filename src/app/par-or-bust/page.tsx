@@ -17,7 +17,8 @@ import { ChainBoard } from "@/components/game/ChainBoard";
 import { GameKeyboard } from "@/components/game/GameKeyboard";
 import { ResultModal } from "@/components/game/ResultModal";
 import { Header } from "@/components/layout/Header";
-import { Target, Pause } from "lucide-react";
+import { Target, Pause, HelpCircle } from "lucide-react";
+import { hasSeenTutorial, markTutorialSeen } from "@/lib/utils/tutorial";
 
 export default function ParOrBustPage() {
   const { loadCustomPuzzle, status, score, chain, startWord, targetWord, par } =
@@ -30,6 +31,8 @@ export default function ParOrBustPage() {
 
   // --- Par or Bust state ---
   const [phase, setPhase] = useState<"rules" | "playing" | "gameover">("rules");
+  const [showTutorial, setShowTutorial] = useState(!hasSeenTutorial("par-or-bust"));
+  const [showHelp, setShowHelp] = useState(false);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
   const [totalSteps, setTotalSteps] = useState(0);
@@ -70,6 +73,14 @@ export default function ParOrBustPage() {
     setPhase("playing");
     handledCompletionRef.current = false;
   }, [loadCustomPuzzle]);
+
+  // Auto-start if tutorial already seen (skip rules screen)
+  useEffect(() => {
+    if (!loading && !error && phase === "rules" && !showTutorial && !showHelp) {
+      startRun();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, error]);
 
   // --- Load next puzzle after a successful solve ---
   const loadNextPuzzle = useCallback(() => {
@@ -180,8 +191,8 @@ export default function ParOrBustPage() {
     );
   }
 
-  // --- Rules screen ---
-  if (phase === "rules") {
+  // --- Rules/tutorial screen ---
+  if (phase === "rules" && (showTutorial || showHelp)) {
     return (
       <div className="flex flex-col h-dvh">
         <Header showBack centerText="Par or Bust" />
@@ -198,7 +209,12 @@ export default function ParOrBustPage() {
           </div>
           <button
             type="button"
-            onClick={startRun}
+            onClick={() => {
+              if (showTutorial) markTutorialSeen("par-or-bust");
+              setShowTutorial(false);
+              setShowHelp(false);
+              startRun();
+            }}
             className="mt-4 px-10 py-3 bg-accent-gold text-[#1A1A1A] font-body font-bold text-base rounded-[var(--radius-lg)] hover:opacity-90 transition-opacity"
           >
             START
@@ -223,14 +239,24 @@ export default function ParOrBustPage() {
         showBack
         centerText="Par or Bust"
         rightContent={
-          <button
-            type="button"
-            onClick={() => setShowPause(true)}
-            aria-label="Pause"
-            className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-md)] bg-bg-elevated text-text-secondary hover:text-text-primary transition-colors"
-          >
-            <Pause size={18} />
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setShowHelp(true)}
+              aria-label="How to play"
+              className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-md)] bg-bg-elevated text-text-secondary hover:text-text-primary transition-colors"
+            >
+              <HelpCircle size={18} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowPause(true)}
+              aria-label="Pause"
+              className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-md)] bg-bg-elevated text-text-secondary hover:text-text-primary transition-colors"
+            >
+              <Pause size={18} />
+            </button>
+          </div>
         }
       />
 

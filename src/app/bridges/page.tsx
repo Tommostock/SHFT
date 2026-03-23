@@ -23,7 +23,8 @@ import { isWord } from "@/lib/game/dictionary";
 import { initPuzzlePool, getRandomPuzzle } from "@/lib/game/puzzlePool";
 import { Header } from "@/components/layout/Header";
 import { ShareButton } from "@/components/game/ShareButton";
-import { Construction, RotateCcw, Delete } from "lucide-react";
+import { Construction, RotateCcw, Delete, HelpCircle } from "lucide-react";
+import { hasSeenTutorial, markTutorialSeen } from "@/lib/utils/tutorial";
 
 /** A single slot in the bridge chain */
 interface BridgeSlot {
@@ -92,7 +93,8 @@ function createBridgeSlots(path: string[]): BridgeSlot[] {
 export default function BridgesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showReady, setShowReady] = useState(true);
+  const [showReady, setShowReady] = useState(!hasSeenTutorial("bridges"));
+  const [showHelp, setShowHelp] = useState(false);
   const [slots, setSlots] = useState<BridgeSlot[]>([]);
   const [activeGapIndex, setActiveGapIndex] = useState<number | null>(null);
   const [selectedPos, setSelectedPos] = useState<number | null>(null);
@@ -318,8 +320,8 @@ export default function BridgesPage() {
     );
   }
 
-  // Ready screen
-  if (showReady) {
+  // Ready/tutorial screen
+  if (showReady || showHelp) {
     return (
       <div className="flex flex-col h-dvh">
         <Header showBack centerText="Bridges" />
@@ -345,7 +347,11 @@ export default function BridgesPage() {
           </div>
           <button
             type="button"
-            onClick={() => setShowReady(false)}
+            onClick={() => {
+              if (showReady) markTutorialSeen("bridges");
+              setShowReady(false);
+              setShowHelp(false);
+            }}
             className="px-10 py-3.5 mt-2 bg-accent-gold text-[#1A1A1A] font-body font-bold text-lg rounded-[var(--radius-lg)] hover:opacity-90 transition-opacity"
           >
             START
@@ -363,7 +369,20 @@ export default function BridgesPage() {
 
   return (
     <div className="flex flex-col h-dvh overflow-hidden">
-      <Header showBack centerText="Bridges" />
+      <Header
+        showBack
+        centerText="Bridges"
+        rightContent={
+          <button
+            type="button"
+            onClick={() => setShowHelp(true)}
+            aria-label="How to play"
+            className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-md)] bg-bg-elevated text-text-secondary hover:text-text-primary transition-colors"
+          >
+            <HelpCircle size={18} />
+          </button>
+        }
+      />
 
       {/* Stats bar */}
       <div className="flex justify-center gap-4 px-4 py-1.5 text-xs font-body text-text-secondary shrink-0">

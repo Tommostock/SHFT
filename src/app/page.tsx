@@ -10,7 +10,7 @@ import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { getTodayUTC, getPuzzleNumber } from "@/lib/utils/dates";
-import { getCurrentStreak, loadGuestData } from "@/lib/stores/guestStore";
+import { getCurrentStreak } from "@/lib/stores/guestStore";
 import {
   Flame,
   Zap,
@@ -23,7 +23,9 @@ import {
   Trophy,
   Route,
   Construction,
+  HelpCircle,
 } from "lucide-react";
+import { hasSeenTutorial, markTutorialSeen } from "@/lib/utils/tutorial";
 
 /** Get number of flame icons based on streak length */
 function getStreakFlames(streak: number): number {
@@ -85,9 +87,8 @@ export default function HomePage() {
   useEffect(() => {
     setStreak(getCurrentStreak());
 
-    // Show tutorial if first visit ever (no completions)
-    const data = loadGuestData();
-    if (Object.keys(data.completions).length === 0 && !data.lastPlayedDate) {
+    // Show tutorial if first visit (using tutorial utility)
+    if (!hasSeenTutorial("home")) {
       setShowTutorial(true);
     }
   }, []);
@@ -97,7 +98,18 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col min-h-dvh">
-      <Header />
+      <Header
+        rightContent={
+          <button
+            type="button"
+            onClick={() => setShowTutorial(true)}
+            aria-label="How to play"
+            className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-md)] bg-bg-elevated text-text-secondary hover:text-text-primary transition-colors"
+          >
+            <HelpCircle size={18} />
+          </button>
+        }
+      />
 
       <main className="flex-1 px-4 py-6 space-y-4">
         {/* Daily Chain — Primary CTA */}
@@ -180,7 +192,10 @@ export default function HomePage() {
       {showTutorial && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-          onClick={() => setShowTutorial(false)}
+          onClick={() => {
+            markTutorialSeen("home");
+            setShowTutorial(false);
+          }}
         >
           <div
             className="bg-bg-surface rounded-[var(--radius-md)] shadow-lg w-[90%] max-w-[340px] p-5 animate-slide-up"
@@ -240,7 +255,10 @@ export default function HomePage() {
 
             <button
               type="button"
-              onClick={() => setShowTutorial(false)}
+              onClick={() => {
+                markTutorialSeen("home");
+                setShowTutorial(false);
+              }}
               className="
                 w-full mt-5 py-2.5
                 bg-accent-gold text-[#1A1A1A] font-body font-bold text-sm

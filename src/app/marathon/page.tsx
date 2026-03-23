@@ -20,7 +20,8 @@ import { Header } from "@/components/layout/Header";
 import { ShareButton } from "@/components/game/ShareButton";
 import { Timer } from "@/components/game/Timer";
 import { initPuzzlePool, getRandomPuzzle, getPuzzleFromStart } from "@/lib/game/puzzlePool";
-import { Route, ArrowRight, RotateCcw } from "lucide-react";
+import { Route, ArrowRight, RotateCcw, HelpCircle } from "lucide-react";
+import { hasSeenTutorial, markTutorialSeen } from "@/lib/utils/tutorial";
 
 /** Session stats for the marathon run */
 interface MarathonStats {
@@ -35,7 +36,8 @@ export default function MarathonPage() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showReady, setShowReady] = useState(true);
+  const [showReady, setShowReady] = useState(!hasSeenTutorial("marathon"));
+  const [showHelp, setShowHelp] = useState(false);
   const [timerRunning, setTimerRunning] = useState(false);
   const [paused, setPaused] = useState(false);
   const [gameOver, setGameOver] = useState(false);
@@ -190,8 +192,8 @@ export default function MarathonPage() {
     );
   }
 
-  // Ready screen — rules before starting
-  if (showReady) {
+  // Ready/tutorial screen — rules before starting
+  if (showReady || showHelp) {
     return (
       <div className="flex flex-col h-dvh">
         <Header showBack centerText="Marathon" />
@@ -208,7 +210,9 @@ export default function MarathonPage() {
           <button
             type="button"
             onClick={() => {
+              if (showReady) markTutorialSeen("marathon");
               setShowReady(false);
+              setShowHelp(false);
               setTimerRunning(true);
               timerStartRef.current = Date.now();
             }}
@@ -236,7 +240,20 @@ export default function MarathonPage() {
 
   return (
     <div className="flex flex-col h-dvh overflow-hidden">
-      <Header showBack centerText="Marathon" />
+      <Header
+        showBack
+        centerText="Marathon"
+        rightContent={
+          <button
+            type="button"
+            onClick={() => setShowHelp(true)}
+            aria-label="How to play"
+            className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-md)] bg-bg-elevated text-text-secondary hover:text-text-primary transition-colors"
+          >
+            <HelpCircle size={18} />
+          </button>
+        }
+      />
 
       {/* Stats bar */}
       <div className="flex justify-center gap-4 px-4 py-1.5 text-xs font-body text-text-secondary shrink-0">

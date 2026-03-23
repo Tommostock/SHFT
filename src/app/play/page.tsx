@@ -16,14 +16,16 @@ import { GameKeyboard } from "@/components/game/GameKeyboard";
 import { ResultModal } from "@/components/game/ResultModal";
 import { Header } from "@/components/layout/Header";
 import { getCurrentStreak } from "@/lib/stores/guestStore";
-import { Pause, ArrowRightLeft } from "lucide-react";
+import { Pause, ArrowRightLeft, HelpCircle } from "lucide-react";
+import { hasSeenTutorial, markTutorialSeen } from "@/lib/utils/tutorial";
 import type { DailyPuzzle } from "@/types";
 
 export default function PlayPage() {
   const { loadPuzzle, status, score, chain, startWord, targetWord, par } = useGameStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showReady, setShowReady] = useState(true);
+  const [showReady, setShowReady] = useState(!hasSeenTutorial("daily-chain"));
+  const [showHelp, setShowHelp] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [showPause, setShowPause] = useState(false);
   const [streak, setStreak] = useState(0);
@@ -153,8 +155,8 @@ export default function PlayPage() {
     );
   }
 
-  // Ready screen — rules before starting
-  if (showReady) {
+  // Ready/tutorial screen — rules before starting
+  if (showReady || showHelp) {
     return (
       <div className="flex flex-col h-dvh">
         <Header showBack centerText="Daily Chain" />
@@ -170,7 +172,11 @@ export default function PlayPage() {
           </div>
           <button
             type="button"
-            onClick={() => setShowReady(false)}
+            onClick={() => {
+              if (showReady) markTutorialSeen("daily-chain");
+              setShowReady(false);
+              setShowHelp(false);
+            }}
             className="px-10 py-3.5 mt-2 bg-accent-gold text-[#1A1A1A] font-body font-bold text-lg rounded-[var(--radius-lg)] hover:opacity-90 transition-opacity"
           >
             START
@@ -188,14 +194,24 @@ export default function PlayPage() {
         showBack
         centerText={`Game ${gamesPlayed + 1}`}
         rightContent={
-          <button
-            type="button"
-            onClick={() => setShowPause(true)}
-            aria-label="Pause"
-            className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-md)] bg-bg-elevated text-text-secondary hover:text-text-primary transition-colors"
-          >
-            <Pause size={18} />
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setShowHelp(true)}
+              aria-label="How to play"
+              className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-md)] bg-bg-elevated text-text-secondary hover:text-text-primary transition-colors"
+            >
+              <HelpCircle size={18} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowPause(true)}
+              aria-label="Pause"
+              className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-md)] bg-bg-elevated text-text-secondary hover:text-text-primary transition-colors"
+            >
+              <Pause size={18} />
+            </button>
+          </div>
         }
       />
 

@@ -21,7 +21,8 @@ import { ChainBoard } from "@/components/game/ChainBoard";
 import { GameKeyboard } from "@/components/game/GameKeyboard";
 import { Timer } from "@/components/game/Timer";
 import { Header } from "@/components/layout/Header";
-import { Zap } from "lucide-react";
+import { Zap, HelpCircle } from "lucide-react";
+import { hasSeenTutorial, markTutorialSeen } from "@/lib/utils/tutorial";
 
 /** How long the sprint lasts (in seconds) */
 const SPRINT_DURATION = 180; // 3 minutes
@@ -35,6 +36,8 @@ export default function SprintPage() {
 
   // --- Sprint lifecycle: "ready" | "playing" | "finished" ---
   const [phase, setPhase] = useState<"ready" | "playing" | "finished">("ready");
+  const [showTutorial, setShowTutorial] = useState(!hasSeenTutorial("sprint"));
+  const [showHelp, setShowHelp] = useState(false);
 
   // --- Stats we track across all puzzles ---
   const [puzzlesSolved, setPuzzlesSolved] = useState(0);
@@ -91,6 +94,14 @@ export default function SprintPage() {
     setPhase("playing");
     loadNextPuzzle();
   }, [loadNextPuzzle]);
+
+  // Auto-start if tutorial already seen (skip ready screen)
+  useEffect(() => {
+    if (!loading && !error && phase === "ready" && !showTutorial && !showHelp) {
+      startSprint();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, error]);
 
   // ──────────────────────────────────────
   // 4. When a puzzle is completed, flash green and load the next one
@@ -201,7 +212,7 @@ export default function SprintPage() {
   // ──────────────────────────────────────
   // RENDER: "Ready?" screen
   // ──────────────────────────────────────
-  if (phase === "ready") {
+  if (phase === "ready" && (showTutorial || showHelp)) {
     return (
       <div className="flex flex-col h-dvh">
         <Header showBack centerText="Sprint" />
@@ -224,7 +235,12 @@ export default function SprintPage() {
           {/* Start button */}
           <button
             type="button"
-            onClick={startSprint}
+            onClick={() => {
+              if (showTutorial) markTutorialSeen("sprint");
+              setShowTutorial(false);
+              setShowHelp(false);
+              startSprint();
+            }}
             className="
               px-10 py-3.5 mt-2
               bg-accent-gold text-[#1A1A1A] font-body font-bold text-lg
@@ -319,7 +335,20 @@ export default function SprintPage() {
         flashGreen ? "bg-green-500/10" : ""
       }`}
     >
-      <Header showBack centerText="Sprint" />
+      <Header
+        showBack
+        centerText="Sprint"
+        rightContent={
+          <button
+            type="button"
+            onClick={() => setShowHelp(true)}
+            aria-label="How to play"
+            className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-md)] bg-bg-elevated text-text-secondary hover:text-text-primary transition-colors"
+          >
+            <HelpCircle size={18} />
+          </button>
+        }
+      />
 
       {/* Stats bar: Timer | Solved | Par */}
       <div className="flex justify-center items-center gap-4 px-4 py-1.5 text-xs font-body text-text-secondary shrink-0">

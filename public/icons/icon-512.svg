@@ -1,7 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
   <rect width="512" height="512" rx="80" fill="#0F0F0F"/>
-  <text x="50%" y="54%" dominant-baseline="central" text-anchor="middle"
-    font-family="'Instrument Serif', Georgia, 'Times New Roman', serif"
-    font-size="140" font-weight="400"
-    fill="#F5F3EE" letter-spacing="6">SHFT</text>
+  <!-- SHFT text as manually positioned glyphs, Instrument Serif style -->
+  <!-- S -->
+  <g transform="translate(72, 186)" fill="#F5F3EE">
+    <path d="M45.5 0C28.5 0 15 5.5 8 14l6 8.5c7-7.5 17.5-12.5 32-12.5 18 0 28 8 28 20.5 0 13-8.5 19-25 25.5-20 8-33 16-33 35 0 17 12.5 30 35 30 16 0 28-6 35.5-13l-6-8c-7 6.5-17 12-29.5 12-16 0-24.5-8.5-24.5-19.5 0-12 8.5-18 24.5-24.5 21-8.5 33.5-17 33.5-36.5C84 13 68.5 0 45.5 0z" transform="scale(1.05)"/>
+  </g>
+  <!-- H -->
+  <g transform="translate(168, 186)" fill="#F5F3EE">
+    <path d="M10 1v138h12V75h62v64h12V1h-12v63H22V1H10z" transform="scale(1.05)"/>
+  </g>
+  <!-- F -->
+  <g transform="translate(274, 186)" fill="#F5F3EE">
+    <path d="M10 1v138h12V75h55v-11H22V12h60V1H10z" transform="scale(1.05)"/>
+  </g>
+  <!-- T -->
+  <g transform="translate(360, 186)" fill="#F5F3EE">
+    <path d="M2 1v11h42v127h12V12h42V1H2z" transform="scale(1.05)"/>
+  </g>
 </svg>
