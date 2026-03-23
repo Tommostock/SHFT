@@ -50,9 +50,10 @@ export function Header({ showBack, centerText, rightContent }: HeaderProps) {
         </span>
       )}
 
-      {/* Right: theme toggle or custom content */}
-      <div className="flex items-center gap-2 min-w-[60px] justify-end">
-        {rightContent ?? <ThemeToggle />}
+      {/* Right: optional content + theme toggle */}
+      <div className="flex items-center gap-1.5 min-w-[60px] justify-end">
+        {rightContent}
+        <ThemeToggle />
       </div>
     </header>
   );
