@@ -1,6 +1,6 @@
 // SHFT Service Worker — App shell caching strategy
 // IMPORTANT: Bump version when data files change to force refresh on all devices
-const CACHE_NAME = "shft-v4";
+const CACHE_NAME = "shft-v5";
 
 // App shell files to pre-cache
 const APP_SHELL = [
