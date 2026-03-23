@@ -214,7 +214,7 @@ export default function BlitzPage() {
   // ──────────────────────────────────────
   // RENDER: Ready screen — rules before starting
   // ──────────────────────────────────────
-  if (phase === "ready" && (showTutorial || showHelp)) {
+  if ((phase === "ready" && showTutorial) || showHelp) {
     return (
       <div className="flex flex-col h-dvh">
         <Header showBack centerText="Blitz" />

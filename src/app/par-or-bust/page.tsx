@@ -192,7 +192,7 @@ export default function ParOrBustPage() {
   }
 
   // --- Rules/tutorial screen ---
-  if (phase === "rules" && (showTutorial || showHelp)) {
+  if ((phase === "rules" && showTutorial) || showHelp) {
     return (
       <div className="flex flex-col h-dvh">
         <Header showBack centerText="Par or Bust" />

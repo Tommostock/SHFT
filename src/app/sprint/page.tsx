@@ -212,7 +212,7 @@ export default function SprintPage() {
   // ──────────────────────────────────────
   // RENDER: "Ready?" screen
   // ──────────────────────────────────────
-  if (phase === "ready" && (showTutorial || showHelp)) {
+  if ((phase === "ready" && showTutorial) || showHelp) {
     return (
       <div className="flex flex-col h-dvh">
         <Header showBack centerText="Sprint" />
