@@ -23,7 +23,7 @@ import { isWord } from "@/lib/game/dictionary";
 import { initPuzzlePool, getRandomPuzzle } from "@/lib/game/puzzlePool";
 import { Header } from "@/components/layout/Header";
 import { ShareButton } from "@/components/game/ShareButton";
-import { Construction, RotateCcw, Delete, HelpCircle } from "lucide-react";
+import { Construction, RotateCcw, Delete, HelpCircle, Pause } from "lucide-react";
 import { hasSeenTutorial, markTutorialSeen } from "@/lib/utils/tutorial";
 
 /** A single slot in the bridge chain */
@@ -95,6 +95,7 @@ export default function BridgesPage() {
   const [error, setError] = useState<string | null>(null);
   const [showReady, setShowReady] = useState(!hasSeenTutorial("bridges"));
   const [showHelp, setShowHelp] = useState(false);
+  const [showPause, setShowPause] = useState(false);
   const [slots, setSlots] = useState<BridgeSlot[]>([]);
   const [activeGapIndex, setActiveGapIndex] = useState<number | null>(null);
   const [selectedPos, setSelectedPos] = useState<number | null>(null);
@@ -277,7 +278,10 @@ export default function BridgesPage() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (gameComplete) return;
       const key = e.key.toLowerCase();
-      if (key.length === 1 && key >= "a" && key <= "z") {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setShowPause((p) => !p);
+      } else if (key.length === 1 && key >= "a" && key <= "z") {
         e.preventDefault();
         handleKey(key);
       } else if (key === "backspace") {
@@ -373,14 +377,24 @@ export default function BridgesPage() {
         showBack
         centerText="Bridges"
         rightContent={
-          <button
-            type="button"
-            onClick={() => setShowHelp(true)}
-            aria-label="How to play"
-            className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-md)] bg-bg-elevated text-text-secondary hover:text-text-primary transition-colors"
-          >
-            <HelpCircle size={18} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setShowPause(true)}
+              aria-label="Pause"
+              className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-md)] bg-bg-elevated text-text-secondary hover:text-text-primary transition-colors"
+            >
+              <Pause size={18} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowHelp(true)}
+              aria-label="How to play"
+              className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-md)] bg-bg-elevated text-text-secondary hover:text-text-primary transition-colors"
+            >
+              <HelpCircle size={18} />
+            </button>
+          </div>
         }
       />
 
@@ -475,6 +489,45 @@ export default function BridgesPage() {
       {/* Keyboard — inline since Bridges doesn't use the game store */}
       {!gameComplete && (
         <BridgesKeyboard onKey={handleKey} />
+      )}
+
+      {/* Pause overlay */}
+      {showPause && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={() => setShowPause(false)}
+        >
+          <div
+            className="bg-bg-surface rounded-[var(--radius-md)] shadow-lg w-[80%] max-w-[300px] p-5 animate-slide-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="font-display text-xl text-text-primary text-center mb-5">
+              Paused
+            </h2>
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={() => setShowPause(false)}
+                className="w-full py-2.5 bg-accent-gold text-[#1A1A1A] font-body font-bold text-sm rounded-[var(--radius-lg)] hover:opacity-90"
+              >
+                RESUME
+              </button>
+              <button
+                type="button"
+                onClick={() => { setShowPause(false); loadNewPuzzle(); }}
+                className="w-full py-2.5 bg-bg-elevated text-text-primary font-body font-medium text-sm rounded-[var(--radius-lg)] hover:bg-border"
+              >
+                NEW GAME
+              </button>
+              <a
+                href="/"
+                className="block w-full py-2.5 bg-bg-elevated text-text-secondary font-body font-medium text-sm rounded-[var(--radius-lg)] hover:bg-border text-center"
+              >
+                EXIT
+              </a>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Complete overlay */}

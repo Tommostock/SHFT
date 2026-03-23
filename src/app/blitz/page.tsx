@@ -21,7 +21,7 @@ import { ChainBoard } from "@/components/game/ChainBoard";
 import { GameKeyboard } from "@/components/game/GameKeyboard";
 import { Timer } from "@/components/game/Timer";
 import { Header } from "@/components/layout/Header";
-import { Clock, HelpCircle } from "lucide-react";
+import { Clock, HelpCircle, Pause } from "lucide-react";
 import { hasSeenTutorial, markTutorialSeen } from "@/lib/utils/tutorial";
 
 /** How long the blitz lasts (in seconds) */
@@ -38,6 +38,7 @@ export default function BlitzPage() {
   const [phase, setPhase] = useState<"ready" | "playing" | "won" | "lost">("ready");
   const [showTutorial, setShowTutorial] = useState(!hasSeenTutorial("blitz"));
   const [showHelp, setShowHelp] = useState(false);
+  const [showPause, setShowPause] = useState(false);
 
   // --- Has the player typed their first letter? (starts the timer) ---
   const [timerStarted, setTimerStarted] = useState(false);
@@ -159,6 +160,9 @@ export default function BlitzPage() {
       } else if (e.ctrlKey && key === "y") {
         e.preventDefault();
         state.redoStep();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        setShowPause((p) => !p);
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
         const pos = state.selectedPosition;
@@ -401,14 +405,24 @@ export default function BlitzPage() {
         showBack
         centerText="Blitz"
         rightContent={
-          <button
-            type="button"
-            onClick={() => setShowHelp(true)}
-            aria-label="How to play"
-            className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-md)] bg-bg-elevated text-text-secondary hover:text-text-primary transition-colors"
-          >
-            <HelpCircle size={18} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setShowPause(true)}
+              aria-label="Pause"
+              className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-md)] bg-bg-elevated text-text-secondary hover:text-text-primary transition-colors"
+            >
+              <Pause size={18} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowHelp(true)}
+              aria-label="How to play"
+              className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-md)] bg-bg-elevated text-text-secondary hover:text-text-primary transition-colors"
+            >
+              <HelpCircle size={18} />
+            </button>
+          </div>
         }
       />
 
@@ -418,6 +432,7 @@ export default function BlitzPage() {
           duration={BLITZ_DURATION}
           mode="countdown"
           running={timerStarted}
+          paused={showPause}
           onExpire={handleTimerExpire}
           compact
         />
@@ -443,6 +458,45 @@ export default function BlitzPage() {
 
       {/* Keyboard */}
       <GameKeyboard />
+
+      {/* Pause overlay */}
+      {showPause && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={() => setShowPause(false)}
+        >
+          <div
+            className="bg-bg-surface rounded-[var(--radius-md)] shadow-lg w-[80%] max-w-[300px] p-5 animate-slide-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="font-display text-xl text-text-primary text-center mb-5">
+              Paused
+            </h2>
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={() => setShowPause(false)}
+                className="w-full py-2.5 bg-accent-gold text-[#1A1A1A] font-body font-bold text-sm rounded-[var(--radius-lg)] hover:opacity-90"
+              >
+                RESUME
+              </button>
+              <button
+                type="button"
+                onClick={() => { setShowPause(false); loadNewPuzzle(); setPhase("playing"); }}
+                className="w-full py-2.5 bg-bg-elevated text-text-primary font-body font-medium text-sm rounded-[var(--radius-lg)] hover:bg-border"
+              >
+                NEW GAME
+              </button>
+              <a
+                href="/"
+                className="block w-full py-2.5 bg-bg-elevated text-text-secondary font-body font-medium text-sm rounded-[var(--radius-lg)] hover:bg-border text-center"
+              >
+                EXIT
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

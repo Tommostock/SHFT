@@ -21,7 +21,7 @@ import { ChainBoard } from "@/components/game/ChainBoard";
 import { GameKeyboard } from "@/components/game/GameKeyboard";
 import { Timer } from "@/components/game/Timer";
 import { Header } from "@/components/layout/Header";
-import { Zap, HelpCircle } from "lucide-react";
+import { Zap, HelpCircle, Pause } from "lucide-react";
 import { hasSeenTutorial, markTutorialSeen } from "@/lib/utils/tutorial";
 
 /** How long the sprint lasts (in seconds) */
@@ -38,6 +38,7 @@ export default function SprintPage() {
   const [phase, setPhase] = useState<"ready" | "playing" | "finished">("ready");
   const [showTutorial, setShowTutorial] = useState(!hasSeenTutorial("sprint"));
   const [showHelp, setShowHelp] = useState(false);
+  const [showPause, setShowPause] = useState(false);
 
   // --- Stats we track across all puzzles ---
   const [puzzlesSolved, setPuzzlesSolved] = useState(0);
@@ -154,6 +155,9 @@ export default function SprintPage() {
       } else if (e.ctrlKey && key === "y") {
         e.preventDefault();
         state.redoStep();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        setShowPause((p) => !p);
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
         const pos = state.selectedPosition;
@@ -339,14 +343,24 @@ export default function SprintPage() {
         showBack
         centerText="Sprint"
         rightContent={
-          <button
-            type="button"
-            onClick={() => setShowHelp(true)}
-            aria-label="How to play"
-            className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-md)] bg-bg-elevated text-text-secondary hover:text-text-primary transition-colors"
-          >
-            <HelpCircle size={18} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setShowPause(true)}
+              aria-label="Pause"
+              className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-md)] bg-bg-elevated text-text-secondary hover:text-text-primary transition-colors"
+            >
+              <Pause size={18} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowHelp(true)}
+              aria-label="How to play"
+              className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-md)] bg-bg-elevated text-text-secondary hover:text-text-primary transition-colors"
+            >
+              <HelpCircle size={18} />
+            </button>
+          </div>
         }
       />
 
@@ -356,6 +370,7 @@ export default function SprintPage() {
           duration={SPRINT_DURATION}
           mode="countdown"
           running={true}
+          paused={showPause}
           onExpire={handleTimerExpire}
           compact
         />
@@ -372,6 +387,45 @@ export default function SprintPage() {
 
       {/* Keyboard */}
       <GameKeyboard />
+
+      {/* Pause overlay */}
+      {showPause && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={() => setShowPause(false)}
+        >
+          <div
+            className="bg-bg-surface rounded-[var(--radius-md)] shadow-lg w-[80%] max-w-[300px] p-5 animate-slide-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="font-display text-xl text-text-primary text-center mb-5">
+              Paused
+            </h2>
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={() => setShowPause(false)}
+                className="w-full py-2.5 bg-accent-gold text-[#1A1A1A] font-body font-bold text-sm rounded-[var(--radius-lg)] hover:opacity-90"
+              >
+                RESUME
+              </button>
+              <button
+                type="button"
+                onClick={() => { setShowPause(false); setPhase("ready"); }}
+                className="w-full py-2.5 bg-bg-elevated text-text-primary font-body font-medium text-sm rounded-[var(--radius-lg)] hover:bg-border"
+              >
+                NEW GAME
+              </button>
+              <a
+                href="/"
+                className="block w-full py-2.5 bg-bg-elevated text-text-secondary font-body font-medium text-sm rounded-[var(--radius-lg)] hover:bg-border text-center"
+              >
+                EXIT
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
